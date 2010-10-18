@@ -312,7 +312,7 @@ private:
             void        getDirtyGroup();
             void        releaseDirtyGroup();
             void        EinkOptPostFramebuffer();
-            void        postFramebuffer(Region pInvalidRegion, int mode);
+            void        postFramebuffer(Region pInvalidRegion, Vector < Rect > &rectList, Vector < int > &modelist, int count);
 #else
             void        postFramebuffer();
 #endif            
@@ -421,6 +421,9 @@ private:
                 bool                        mBootFinished;
 
                 DirtyRegList                *mLayersDirtyReglist;
+                DirtyRegList                *mRegionsDirtyReglist;
+                DirtyRegList                *mReupdateDirtyReglist;
+                int                          mNeedspecialupdate ;
 
                 // these are thread safe
     mutable     Barrier                     mReadyToRunBarrier;
