@@ -1056,7 +1056,7 @@ class PowerManagerService extends IPowerManager.Stub
                 setScreenOffTimeoutsLocked();
                 // reset the countdown timer, but use the existing nextState so it doesn't
                 // change anything
-                setTimeoutLocked(SystemClock.uptimeMillis(), mTimeoutTask.nextState);
+                // setTimeoutLocked(SystemClock.uptimeMillis(), mTimeoutTask.nextState);
             }
         }
     }
