@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/* Copyright 2010-2011 Freescale Semiconductor Inc. */
 
 package com.android.server;
 
@@ -32,6 +33,7 @@ import android.net.NetworkInfo;
 import android.net.NetworkStateTracker;
 import android.net.wifi.WifiStateTracker;
 import android.net.wimax.WimaxManagerConstants;
+import android.net.EthernetStateTracker;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
@@ -274,7 +276,7 @@ public class ConnectivityService extends IConnectivityManager.Stub {
         mHandler = new MyHandler();
 
         mNetworkPreference = getPersistedNetworkPreference();
-
+        Slog.i(TAG,"init mNetworkPreference"+mNetworkPreference);
         mRadioAttributes = new RadioAttributes[ConnectivityManager.MAX_RADIO_TYPE+1];
         mNetAttributes = new NetworkAttributes[ConnectivityManager.MAX_NETWORK_TYPE+1];
 
@@ -310,11 +312,12 @@ public class ConnectivityService extends IConnectivityManager.Stub {
                             n.mType);
                     continue;
                 }
+                /*
                 if (mRadioAttributes[n.mRadio] == null) {
                     Slog.e(TAG, "Error in networkAttributes - ignoring attempt to use undefined " +
                             "radio " + n.mRadio + " in network type " + n.mType);
                     continue;
-                }
+                }*/
                 mNetAttributes[n.mType] = n;
                 mNetworksDefined++;
             } catch(Exception e) {
@@ -366,8 +369,18 @@ public class ConnectivityService extends IConnectivityManager.Stub {
         boolean noMobileData = !getMobileDataEnabled();
         for (int netType : mPriorityList) {
             switch (mNetAttributes[netType].mRadio) {
+            case ConnectivityManager.TYPE_ETHERNET:
+                Slog.v(TAG, "Starting Ethernet Service.");
+                EthernetStateTracker est = new EthernetStateTracker(context, mHandler);
+                EthernetService ethernetService = new EthernetService(context, est);
+                ServiceManager.addService(Context.ETHERNET_SERVICE, ethernetService);
+                ethernetService.startEthernet();
+                mNetTrackers[ConnectivityManager.TYPE_ETHERNET] = est;
+                est.startMonitoring();
+                
+                break;
             case ConnectivityManager.TYPE_WIFI:
-                if (DBG) Slog.v(TAG, "Starting Wifi Service.");
+                Slog.v(TAG, "Starting Wifi Service.");
                 WifiStateTracker wst = new WifiStateTracker(context, mHandler);
                 WifiService wifiService = new WifiService(context, wst);
                 ServiceManager.addService(Context.WIFI_SERVICE, wifiService);
@@ -510,7 +523,7 @@ public class ConnectivityService extends IConnectivityManager.Stub {
      */
     public void setNetworkPreference(int preference) {
         enforceChangePermission();
-
+        Slog.d(TAG,"setNetworkPreference ");
         mHandler.sendMessage(mHandler.obtainMessage(EVENT_SET_NETWORK_PREFERENCE, preference, 0));
     }
 
@@ -532,6 +545,7 @@ public class ConnectivityService extends IConnectivityManager.Stub {
                 Settings.Secure.putInt(cr, Settings.Secure.NETWORK_PREFERENCE, preference);
                 synchronized(this) {
                     mNetworkPreference = preference;
+                    Slog.i(TAG,"handleSetNetworkPreference mNetworkPreference"+mNetworkPreference);
                 }
                 enforcePreference();
             }
@@ -1262,7 +1276,7 @@ public class ConnectivityService extends IConnectivityManager.Stub {
         // snapshot isFailover, because sendConnectedBroadcast() resets it
         boolean isFailover = info.isFailover();
         NetworkStateTracker thisNet = mNetTrackers[type];
-
+        Slog.v(TAG,"handleConnect : type " +type+"mNetworkPreference"+mNetworkPreference+"mActiveDefaultNetwork"+mActiveDefaultNetwork);
         // if this is a default net and other default is running
         // kill the one not preferred
         if (mNetAttributes[type].isDefault()) {
@@ -1272,7 +1286,7 @@ public class ConnectivityService extends IConnectivityManager.Stub {
                         mNetAttributes[type].mPriority) ||
                         mNetworkPreference == mActiveDefaultNetwork) {
                         // don't accept this one
-                        if (DBG) Slog.v(TAG, "Not broadcasting CONNECT_ACTION " +
+                        Slog.v(TAG, "Not broadcasting CONNECT_ACTION " +
                                 "to torn down network " + info.getTypeName());
                         teardown(thisNet);
                         return;
@@ -1280,7 +1294,7 @@ public class ConnectivityService extends IConnectivityManager.Stub {
                     // tear down the other
                     NetworkStateTracker otherNet =
                             mNetTrackers[mActiveDefaultNetwork];
-                    if (DBG) Slog.v(TAG, "Policy requires " +
+                    Slog.v(TAG, "Policy requires " +
                             otherNet.getNetworkInfo().getTypeName() +
                             " teardown");
                     if (!teardown(otherNet)) {
@@ -1537,6 +1551,7 @@ public class ConnectivityService extends IConnectivityManager.Stub {
             NetworkInfo info;
             switch (msg.what) {
                 case NetworkStateTracker.EVENT_STATE_CHANGED:
+                    Slog.d(TAG,"NetworkStateTracker.EVENT_STATE_CHANGED\n");
                     info = (NetworkInfo) msg.obj;
                     int type = info.getType();
                     NetworkInfo.State state = info.getState();
@@ -1558,7 +1573,7 @@ public class ConnectivityService extends IConnectivityManager.Stub {
                     }
                     mNetAttributes[type].mLastState = state;
 
-                    if (DBG) Slog.d(TAG, "ConnectivityChange for " +
+                    Slog.d(TAG, "ConnectivityChange for " +
                             info.getTypeName() + ": " +
                             state + "/" + info.getDetailedState());
 
