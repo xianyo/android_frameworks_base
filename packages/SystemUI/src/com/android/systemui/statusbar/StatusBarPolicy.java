@@ -499,6 +499,10 @@ public class StatusBarPolicy {
     private static final int sEthernetSignalImage =
             R.drawable.stat_sys_ethernet_signal_0;
 
+    //hdmi
+    private static final int sHdmiSignalImage =
+            R.drawable.stat_sys_hdmi_signal_0;
+
 
     private int mLastWifiSignalLevel = -1;
     private boolean mIsWifiConnected = false;
@@ -583,6 +587,8 @@ public class StatusBarPolicy {
                      action.equals(WimaxManagerConstants.SIGNAL_LEVEL_CHANGED_ACTION) ||
                      action.equals(WimaxManagerConstants.WIMAX_STATE_CHANGED_ACTION)) {
                 updateWiMAX(intent);
+            else if (action.equals(Intent.ACTION_HDMI_PLUG)){
+                updateHdmi(intent);
             }
         }
     };
@@ -702,6 +708,7 @@ public class StatusBarPolicy {
         filter.addAction(WimaxManagerConstants.SIGNAL_LEVEL_CHANGED_ACTION);
         filter.addAction(WimaxManagerConstants.WIMAX_ENABLED_STATUS_CHANGED);
 
+        filter.addAction(Intent.ACTION_HDMI_PLUG);        
         mContext.registerReceiver(mIntentReceiver, filter, null, mHandler);
 
         // load config to determine if to distinguish Hspa data icon
@@ -970,6 +977,25 @@ public class StatusBarPolicy {
             break;
         }
     }
+
+    private void updateHdmi(Intent intent) {
+        int state = intent.getIntExtra("state", 0);
+        if(state == 1)
+        {
+                int iconId = sHdmiSignalImage;
+                mService.setIcon("hdmi", iconId, 0);
+                // Hide the icon since we're not connected
+                mService.setIconVisibility("hdmi", true);              
+        }else
+        {
+                int iconId = sHdmiSignalImage;
+                mService.setIcon("hdmi", iconId, 0);
+                // Hide the icon since we're not connected
+                mService.setIconVisibility("hdmi", false);         
+        }
+    }
+    
+    
 
     private PhoneStateListener mPhoneStateListener = new PhoneStateListener() {
         @Override
