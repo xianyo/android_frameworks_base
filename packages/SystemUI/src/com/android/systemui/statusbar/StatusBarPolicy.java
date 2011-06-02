@@ -587,7 +587,8 @@ public class StatusBarPolicy {
                      action.equals(WimaxManagerConstants.SIGNAL_LEVEL_CHANGED_ACTION) ||
                      action.equals(WimaxManagerConstants.WIMAX_STATE_CHANGED_ACTION)) {
                 updateWiMAX(intent);
-            else if (action.equals(Intent.ACTION_HDMI_PLUG)){
+			}
+			else if (action.equals(Intent.ACTION_HDMI_PLUG)){
                 updateHdmi(intent);
             }
         }
