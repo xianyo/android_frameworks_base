@@ -209,6 +209,13 @@ sp<OverlayRef> LayerBuffer::createOverlay(uint32_t w, uint32_t h, int32_t f,
 status_t LayerBuffer::getDestRect(int *left,int *right,int *top,int *bottom,int *rot)
 {
     Mutex::Autolock _l(mLock);
+
+	//Only return destRect when there is visible region
+    Rect bounds = visibleRegionScreen.bounds();
+    if((bounds.right - bounds.left) == 0 || (bounds.bottom - bounds.top) == 0) {
+        return INVALID_OPERATION;
+    }
+
     const Rect& transformedBounds = getTransformedBounds();
   
     *left = transformedBounds.left;
