@@ -89,10 +89,12 @@ class HeadsetObserver extends UEventObserver {
             //file = new FileReader(HEADSET_NAME_PATH);
             //len = file.read(buffer, 0, 1024);
             newName = new String(buffer, 0, len).trim();
-	    if (newName.equals("headphone"))
-		newState = 1;
-	    else
-		newState = 0;
+            if (newName.equals("headset"))
+                newState = 1;
+            else if (newName.equals("headphone"))
+                newState = 2;
+            else
+                newState = 0;
 
         } catch (FileNotFoundException e) {
             Slog.w(TAG, "This kernel does not have wired headset support");
