@@ -321,7 +321,7 @@ SkBitmap::Config GraphicsJNI::getNativeBitmapConfig(JNIEnv* env,
     }
 
     hw_module_t const* module;
-    framebuffer_device_t* fbDev;
+    framebuffer_device_t* fbDev = 0;
     if (hw_get_module(GRALLOC_HARDWARE_MODULE_ID, &module) == 0) {
         if (framebuffer_open(module, &fbDev) ==0){
             if (fbDev->format == HAL_PIXEL_FORMAT_BGRA_8888){
