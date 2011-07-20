@@ -5,6 +5,8 @@
 #include "SkPicture.h"
 #include "SkRegion.h"
 #include <android_runtime/AndroidRuntime.h>
+#include <hardware/hardware.h>
+#include <hardware/gralloc.h>
 
 //#define REPORT_SIZE_TO_JVM
 //#define TRACK_LOCK_COUNT
@@ -317,6 +319,21 @@ SkBitmap::Config GraphicsJNI::getNativeBitmapConfig(JNIEnv* env,
     if (c < 0 || c >= SkBitmap::kConfigCount) {
         c = SkBitmap::kNo_Config;
     }
+
+    hw_module_t const* module;
+    framebuffer_device_t* fbDev;
+    if (hw_get_module(GRALLOC_HARDWARE_MODULE_ID, &module) == 0) {
+        if (framebuffer_open(module, &fbDev) ==0){
+            if (fbDev->format == HAL_PIXEL_FORMAT_BGRA_8888){
+                c = SkBitmap::kARGB_8888_Config;
+            } else {
+                c = SkBitmap::kRGB_565_Config;
+            }
+        }
+        if (fbDev)
+            framebuffer_close(fbDev);
+    }
+
     return static_cast<SkBitmap::Config>(c);
 }
 
