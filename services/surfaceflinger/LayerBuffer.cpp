@@ -213,7 +213,13 @@ status_t LayerBuffer::getDestRect(int *left,int *right,int *top,int *bottom,int 
 	//Only return destRect when there is visible region
     Rect bounds = visibleRegionScreen.bounds();
     if((bounds.right - bounds.left) == 0 || (bounds.bottom - bounds.top) == 0) {
-        return INVALID_OPERATION;
+        LOGW("Warning!Not output for LayerBuffer");
+        *left = 0;
+        *right = 0;
+        *top = 0;
+        *bottom = 0;
+        *rot = getOrientation();
+        return NO_ERROR;
     }
 
     const Rect& transformedBounds = getTransformedBounds();
@@ -718,6 +724,19 @@ void LayerBuffer::OverlaySource::onVisibilityResolved(
                         OVERLAY_TRANSFORM, finalTransform.getOrientation());
                 overlay_dev->setParameter(overlay_dev, mOverlay,
                         OVERLAY_ZORDER, mLayer.currentState().z);
+                const Rect visible_bounds = mLayer.visibleRegionScreen.bounds();
+                int visible_x = visible_bounds.left;
+                int visible_y = visible_bounds.top;
+                int visible_w = visible_bounds.width();
+                int visible_h = visible_bounds.height();
+                //This layer is not visiable, need hide the layer
+                if((visible_w == 0) ||(visible_h == 0)){
+                    LOGW("Warning!No visiable area for this layer");
+                    overlay_dev->setParameter(overlay_dev, mOverlay, OVERLAY_VISIBLE, 0);
+                }
+                else{
+                    overlay_dev->setParameter(overlay_dev, mOverlay, OVERLAY_VISIBLE, 1);
+                }
                 overlay_dev->commit(overlay_dev, mOverlay);
             }
         }
