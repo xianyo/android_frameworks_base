@@ -1,9 +1,10 @@
-//
-// Copyright (C) 2011 Freescale Semiconductor Inc.
-// Copyright 2010 The Android Open Source Project
-//
-// The input reader.
-//
+/*
+ *  Copyright 2010 The Android Open Source Project
+ *
+ *  The input reader.
+*/
+/* Copyright (C) 2011 Freescale Semiconductor,Inc. */
+
 #define LOG_TAG "InputReader"
 
 //#define LOG_NDEBUG 0

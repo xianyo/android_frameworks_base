@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/* Copyright (C) 2011 Freescale Semiconductor,Inc. */
 
 package android.media;
 
@@ -104,7 +105,6 @@ import java.util.Iterator;
  *
  * {@hide}
  */
-/* Copyright (c) 2011 Freescale Semiconductor, Inc. */
 
 
 public class MediaScanner
