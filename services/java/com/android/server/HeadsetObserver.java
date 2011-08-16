@@ -26,6 +26,7 @@ import android.os.PowerManager.WakeLock;
 import android.os.UEventObserver;
 import android.util.Slog;
 import android.media.AudioManager;
+import android.os.SystemProperties;
 
 import java.io.FileReader;
 import java.io.FileNotFoundException;
@@ -37,9 +38,13 @@ class HeadsetObserver extends UEventObserver {
     private static final String TAG = HeadsetObserver.class.getSimpleName();
     private static final boolean LOG = true;
 
-    private static final String HEADSET_UEVENT_MATCH = "DEVPATH=/devices/platform/imx-3stack-sgtl5000.0";
-    private static final String HEADSET_STATE_PATH = "/sys/devices/platform/imx-3stack-sgtl5000.0/driver/headphone";
-    private static final String HEADSET_NAME_PATH = "/sys/class/switch/h2w/name";
+    private static final String HEADSET_UEVENT_MATCH_SGTL5000 = "DEVPATH=/devices/platform/imx-3stack-sgtl5000.0";
+    private static final String HEADSET_STATE_PATH_SGTL5000 = "/sys/devices/platform/imx-3stack-sgtl5000.0/driver/headphone";
+    private static final String HEADSET_NAME_PATH_SGTL5000 = "/sys/class/switch/h2w/name";
+
+    private static final String HEADSET_UEVENT_MATCH_WM8994 = "DEVPATH=/devices/platform/imx-3stack-wm8994.0";
+    private static final String HEADSET_STATE_PATH_WM8994 = "/sys/devices/platform/imx-3stack-wm8994.0/driver/headphone";
+    private static final String HEADSET_NAME_PATH_WM8994 = "/sys/class/switch/h2w/name";
 
     private static final int BIT_HEADSET = (1 << 0);
     private static final int BIT_HEADSET_NO_MIC = (1 << 1);
@@ -59,7 +64,12 @@ class HeadsetObserver extends UEventObserver {
         mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "HeadsetObserver");
         mWakeLock.setReferenceCounted(false);
 
-        startObserving(HEADSET_UEVENT_MATCH);
+        if ("WM8994".equals(SystemProperties.get("ro.MAIN_AUDIO_CODEC"))) 
+            startObserving(HEADSET_UEVENT_MATCH_WM8994);
+        else if("SGTL5000".equals(SystemProperties.get("ro.MAIN_AUDIO_CODEC")))
+            startObserving(HEADSET_UEVENT_MATCH_SGTL5000);
+        else
+            startObserving(HEADSET_UEVENT_MATCH_SGTL5000);
 
         init();  // set initial status
     }
@@ -81,8 +91,15 @@ class HeadsetObserver extends UEventObserver {
         String newName = mHeadsetName;
         int newState = mHeadsetState;
         mPrevHeadsetState = mHeadsetState;
+        FileReader file;
         try {
-            FileReader file = new FileReader(HEADSET_STATE_PATH);
+            if ("WM8994".equals(SystemProperties.get("ro.MAIN_AUDIO_CODEC"))) 
+                file = new FileReader(HEADSET_STATE_PATH_WM8994);
+            else if ("SGTL5000".equals(SystemProperties.get("ro.MAIN_AUDIO_CODEC")))
+                file = new FileReader(HEADSET_STATE_PATH_SGTL5000);
+            else
+                file = new FileReader(HEADSET_STATE_PATH_SGTL5000);
+
             int len = file.read(buffer, 0, 1024);
             // newState = Integer.valueOf((new String(buffer, 0, len)).trim());
 
