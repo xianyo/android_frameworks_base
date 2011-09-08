@@ -465,6 +465,7 @@ public abstract class WallpaperService extends Service {
         void updateSurface(boolean forceRelayout, boolean forceReport, boolean redrawNeeded) {
             if (mDestroyed) {
                 Log.w(TAG, "Ignoring updateSurface: destroyed");
+		return;
             }
             
             int myWidth = mSurfaceHolder.getRequestedWidth();
@@ -680,7 +681,7 @@ public abstract class WallpaperService extends Service {
                         // If becoming visible, in preview mode the surface
                         // may have been destroyed so now we need to make
                         // sure it is re-created.
-                        updateSurface(true, true, true);
+                        updateSurface(true, false, false);
                     }
                     onVisibilityChanged(visible);
                 }
@@ -891,6 +892,7 @@ public abstract class WallpaperService extends Service {
                     if (DEBUG) Log.v(TAG, "Visibility change in " + mEngine
                             + ": " + message.arg1);
                     mEngine.doVisibilityChanged(message.arg1 != 0);
+                    mEngine.updateSurface(message.arg1 == 0, false, false);
                     break;
                 case MSG_WALLPAPER_OFFSETS: {
                     mEngine.doOffsetsChanged();
@@ -901,7 +903,7 @@ public abstract class WallpaperService extends Service {
                 } break;
                 case MSG_WINDOW_RESIZED: {
                     final boolean reportDraw = message.arg1 != 0;
-                    mEngine.updateSurface(true, false, reportDraw);
+                    mEngine.updateSurface(false, false, reportDraw);
                     mEngine.doOffsetsChanged();
                 } break;
                 case MSG_TOUCH_EVENT: {
