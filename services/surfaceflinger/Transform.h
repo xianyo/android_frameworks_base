@@ -75,6 +75,7 @@ public:
 
             // transform data
             Rect    makeBounds(int w, int h) const;
+            Rect    makeBounds(int x, int y, int w, int h) const;
             void    transform(float* point, int x, int y) const;
             Region  transform(const Region& reg) const;
             Transform operator * (const Transform& rhs) const;

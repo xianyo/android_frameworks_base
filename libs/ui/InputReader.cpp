@@ -2366,9 +2366,14 @@ void TouchInputMapper::dispatchTouch(nsecs_t when, uint32_t policyFlags,
 
             const PointerData& in = touch->pointers[inIndex];
 
+            char value[PROPERTY_VALUE_MAX];
+            property_get("rw.overscan.percent", value, "0");
+            float a = (float)(abs(atoi(value)) > 10? 10 : abs(atoi(value)))/100;
+
             // X and Y
-            float x = float(in.x - mLocked.xOrigin) * mLocked.xScale;
-            float y = float(in.y - mLocked.yOrigin) * mLocked.yScale;
+            float x = float(in.x - mLocked.xOrigin - mRawAxes.x.getRange()*a) * mLocked.xScale / (1-2*a);
+            float y = float(in.y - mLocked.yOrigin- mRawAxes.y.getRange()*a) * mLocked.yScale / (1-2*a);
+
 
             // ToolMajor and ToolMinor
             float toolMajor, toolMinor;

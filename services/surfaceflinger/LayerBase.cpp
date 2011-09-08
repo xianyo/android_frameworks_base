@@ -34,7 +34,7 @@
 #include "SurfaceFlinger.h"
 #include "DisplayHardware/DisplayHardware.h"
 #include "TextureManager.h"
-
+#include <cutils/properties.h>
 
 namespace android {
 
@@ -233,13 +233,24 @@ void LayerBase::validateVisibility(const Transform& planeTransform)
     const Layer::State& s(drawingState());
     const Transform tr(planeTransform * s.transform);
     const bool transformed = tr.transformed();
-   
+    char value[PROPERTY_VALUE_MAX];
+    property_get("rw.overscan.percent", value, "0");
+    GLfloat a = (GLfloat)(abs(atoi(value)) > 10? 10 : abs(atoi(value)))/100;
+    const DisplayHardware& hw(graphicPlane(0).displayHardware()); 
+    
     uint32_t w = s.w;
     uint32_t h = s.h;    
-    tr.transform(mVertices[0], 0, 0);
-    tr.transform(mVertices[1], 0, h);
-    tr.transform(mVertices[2], w, h);
-    tr.transform(mVertices[3], w, 0);
+    uint32_t Width = hw.getWidth();
+    uint32_t Height = hw.getHeight();
+
+    // force enable filter if over scan enable
+    if (atoi(value))
+        mNeedsFiltering = true;
+
+    tr.transform(mVertices[0], Width*a, Height*a);
+    tr.transform(mVertices[1], Width*a, Height*a + h*(1-2*a));
+    tr.transform(mVertices[2], Width*a + w*(1-2*a), Height*a + h*(1-2*a));
+    tr.transform(mVertices[3], Width*a + w*(1-2*a), Height*a);
     if (UNLIKELY(transformed)) {
         // NOTE: here we could also punt if we have too many rectangles
         // in the transparent region
@@ -257,7 +268,7 @@ void LayerBase::validateVisibility(const Transform& planeTransform)
 
     // cache a few things...
     mOrientation = tr.getOrientation();
-    mTransformedBounds = tr.makeBounds(w, h);
+    mTransformedBounds = tr.makeBounds(Width*a, Height*a, Width*a + w*(1-2*a), Height*a + h*(1-2*a));
     mLeft = tr.tx();
     mTop  = tr.ty();
 }

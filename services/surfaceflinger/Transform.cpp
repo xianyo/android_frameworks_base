@@ -239,6 +239,11 @@ Rect Transform::makeBounds(int w, int h) const
     return transform( Rect(w, h) );
 }
 
+Rect Transform::makeBounds(int x, int y, int w, int h) const
+{
+    return transform( Rect(x, y, w, h) );
+}
+
 Rect Transform::transform(const Rect& bounds) const
 {
     Rect r;
