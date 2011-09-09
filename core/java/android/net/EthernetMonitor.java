@@ -260,7 +260,7 @@ public class EthernetMonitor {
                     break;
                     
                 case ERROR:
-                    mEthernetStateTracker.notifyEthernetUnKnown();
+                    mEthernetStateTracker.notifyEthernetError();
                     break;
             }
         }

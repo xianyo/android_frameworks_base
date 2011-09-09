@@ -312,12 +312,11 @@ public class ConnectivityService extends IConnectivityManager.Stub {
                             n.mType);
                     continue;
                 }
-                /*
                 if (mRadioAttributes[n.mRadio] == null) {
                     Slog.e(TAG, "Error in networkAttributes - ignoring attempt to use undefined " +
                             "radio " + n.mRadio + " in network type " + n.mType);
                     continue;
-                }*/
+                }
                 mNetAttributes[n.mType] = n;
                 mNetworksDefined++;
             } catch(Exception e) {
@@ -1139,6 +1138,8 @@ public class ConnectivityService extends IConnectivityManager.Stub {
             if (mActiveDefaultNetwork == prevNetType) {
                 mActiveDefaultNetwork = -1;
             }
+
+            if(mActiveDefaultNetwork != -1) return;
 
             boolean noMobileData = !getMobileDataEnabled();
             for (int checkType=0; checkType <= ConnectivityManager.MAX_NETWORK_TYPE; checkType++) {
