@@ -1928,17 +1928,17 @@ public class AudioService extends IAudioService.Stub {
             } else if (action.equals(Intent.ACTION_HDMI_PLUG)) {
                 int state = intent.getIntExtra("state", 0);
 
-                    boolean isConnected = mConnectedDevices.containsKey(AudioSystem.DEVICE_OUT_WIRED_HDMI);
+                    boolean isConnected = mConnectedDevices.containsKey(AudioSystem.DEVICE_OUT_AUX_DIGITAL);
                     if (state == 0 && isConnected) {
-                        AudioSystem.setDeviceConnectionState(AudioSystem.DEVICE_OUT_WIRED_HDMI,
+                        AudioSystem.setDeviceConnectionState(AudioSystem.DEVICE_OUT_AUX_DIGITAL,
                                 AudioSystem.DEVICE_STATE_UNAVAILABLE,
                                 "");
-                        mConnectedDevices.remove(AudioSystem.DEVICE_OUT_WIRED_HDMI);
+                        mConnectedDevices.remove(AudioSystem.DEVICE_OUT_AUX_DIGITAL);
                     } else if (state == 1 && !isConnected)  {
-                        AudioSystem.setDeviceConnectionState(AudioSystem.DEVICE_OUT_WIRED_HDMI,
+                        AudioSystem.setDeviceConnectionState(AudioSystem.DEVICE_OUT_AUX_DIGITAL,
                                 AudioSystem.DEVICE_STATE_AVAILABLE,
                                 "");
-                        mConnectedDevices.put( new Integer(AudioSystem.DEVICE_OUT_WIRED_HDMI), "");
+                        mConnectedDevices.put( new Integer(AudioSystem.DEVICE_OUT_AUX_DIGITAL), "");
                     }
 
             } else if (action.equals(BluetoothHeadset.ACTION_AUDIO_STATE_CHANGED)) {
