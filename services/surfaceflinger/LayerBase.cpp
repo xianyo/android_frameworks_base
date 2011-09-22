@@ -234,18 +234,27 @@ void LayerBase::validateVisibility(const Transform& planeTransform)
     const Transform tr(planeTransform * s.transform);
     const bool transformed = tr.transformed();
     char value[PROPERTY_VALUE_MAX];
-    property_get("rw.overscan.percent", value, "0");
+    property_get("sys.overscan.percent", value, "0");
+    property_set("sys.overscan.update", value);
     GLfloat a = (GLfloat)(abs(atoi(value)) > 10? 10 : abs(atoi(value)))/100;
     const DisplayHardware& hw(graphicPlane(0).displayHardware()); 
     
     uint32_t w = s.w;
     uint32_t h = s.h;    
-    uint32_t Width = hw.getWidth();
-    uint32_t Height = hw.getHeight();
 
     // force enable filter if over scan enable
     if (atoi(value))
         mNeedsFiltering = true;
+
+    uint32_t Width, Height;
+    property_get("ro.sf.hwrotation", value, "0");
+    if (atoi(value) == 90 || atoi(value) == 270) {
+       Width = hw.getHeight();
+       Height = hw.getWidth();
+    } else {
+       Width = hw.getWidth();
+       Height = hw.getHeight();
+    }
 
     tr.transform(mVertices[0], Width*a, Height*a);
     tr.transform(mVertices[1], Width*a, Height*a + h*(1-2*a));

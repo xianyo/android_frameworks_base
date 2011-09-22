@@ -2367,7 +2367,7 @@ void TouchInputMapper::dispatchTouch(nsecs_t when, uint32_t policyFlags,
             const PointerData& in = touch->pointers[inIndex];
 
             char value[PROPERTY_VALUE_MAX];
-            property_get("rw.overscan.percent", value, "0");
+            property_get("sys.overscan.update", value, "0");
             float a = (float)(abs(atoi(value)) > 10? 10 : abs(atoi(value)))/100;
 
             // X and Y

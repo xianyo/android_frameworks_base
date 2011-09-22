@@ -1791,7 +1791,7 @@ status_t SurfaceFlinger::setClientState(
             const uint32_t what = s.what;
             if (what & ePositionChanged) {
                 char value[PROPERTY_VALUE_MAX];
-                property_get("rw.overscan.percent", value, "0");
+                property_get("sys.overscan.percent", value, "0");
                 GLfloat a = (GLfloat)(abs(atoi(value)) > 10? 10 : abs(atoi(value)))/100; 
                 if (layer->setPosition(s.x*(1-2*a), s.y*(1-2*a)))
                     flags |= eTraversalNeeded;
