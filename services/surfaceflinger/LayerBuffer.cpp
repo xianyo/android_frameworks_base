@@ -35,6 +35,7 @@
 #include "LayerBuffer.h"
 #include "SurfaceFlinger.h"
 #include "DisplayHardware/DisplayHardware.h"
+#include <cutils/properties.h>
 
 namespace android {
 
@@ -141,7 +142,37 @@ void LayerBuffer::validateVisibility(const Transform& globalTransform)
     sp<Source> source(getSource());
     if (source != 0)
         source->onvalidateVisibility(globalTransform);
-    LayerBase::validateVisibility(globalTransform);
+
+    const Layer::State& s(drawingState());
+    const Transform tr(globalTransform * s.transform);
+    const bool transformed = tr.transformed();
+   
+    uint32_t w = s.w;
+    uint32_t h = s.h;    
+    tr.transform(mVertices[0], 0, 0);
+    tr.transform(mVertices[1], 0, h);
+    tr.transform(mVertices[2], w, h);
+    tr.transform(mVertices[3], w, 0);
+    if (UNLIKELY(transformed)) {
+        // NOTE: here we could also punt if we have too many rectangles
+        // in the transparent region
+        if (tr.preserveRects()) {
+            // transform the transparent region
+            transparentRegionScreen = tr.transform(s.transparentRegion);
+        } else {
+            // transformation too complex, can't do the transparent region
+            // optimization.
+            transparentRegionScreen.clear();
+        }
+    } else {
+        transparentRegionScreen = s.transparentRegion;
+    }
+
+    // cache a few things...
+    mOrientation = tr.getOrientation();
+    mTransformedBounds = tr.makeBounds(w, h);
+    mLeft = tr.tx();
+    mTop  = tr.ty();
 }
 
 void LayerBuffer::drawForSreenShot() const
@@ -706,11 +737,14 @@ void LayerBuffer::OverlaySource::onVisibilityResolved(
         if (mVisibilityChanged || !mInitialized) {
             mVisibilityChanged = false;
             mInitialized = true;
+            char value[PROPERTY_VALUE_MAX];
+            property_get("sys.overscan.percent", value, "0");
+            GLfloat a = (GLfloat)(abs(atoi(value)) > 10? 10 : abs(atoi(value)))/100;
             const Rect bounds(mLayer.getTransformedBounds());
-            int x = bounds.left;
-            int y = bounds.top;
-            int w = bounds.width();
-            int h = bounds.height();
+            int x = bounds.left + bounds.width()*a;
+            int y = bounds.top + bounds.height()*a;
+            int w = bounds.width()*(1-2*a);
+            int h = bounds.height()*(1-2*a);
             
             // we need a lock here to protect "destroy"
             Mutex::Autolock _l(mOverlaySourceLock);
