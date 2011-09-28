@@ -100,7 +100,7 @@ public class WifiService extends IWifiManager.Stub {
     private final WifiStateTracker mWifiStateTracker;
     /* TODO: fetch a configurable interface */
     //     private static final String SOFTAP_IFACE = "wl0.1";
-    private static final String SOFTAP_IFACE = "wlap0";
+    private static final String SOFTAP_IFACE = "wlan0";
 
     private Context mContext;
     private int mWifiApState;
