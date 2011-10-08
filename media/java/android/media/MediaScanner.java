@@ -1216,46 +1216,48 @@ public class MediaScanner
 
     private void pruneDeadThumbnailFiles() {
         HashSet<String> existingFiles = new HashSet<String>();
-        String directory = "/sdcard/DCIM/.thumbnails";
-        String [] files = (new File(directory)).list();
-        if (files == null)
-            files = new String[0];
+        String directorys[] = {"/sdcard/DCIM/.thumbnails", "/sdcard/extsd/DCIM/.thumbnails", "/sdcard/udisk/DCIM/.thumbnails"};
+        for (int m = 0; m < directorys.length; m++) {
+            String [] files = (new File(directorys[m])).list();
+            if (files == null)
+                files = new String[0];
 
-        for (int i = 0; i < files.length; i++) {
-            String fullPathString = directory + "/" + files[i];
-            existingFiles.add(fullPathString);
-        }
-
-        try {
-            Cursor c = mMediaProvider.query(
-                    mThumbsUri,
-                    new String [] { "_data" },
-                    null,
-                    null,
-                    null);
-            Log.v(TAG, "pruneDeadThumbnailFiles... " + c);
-            if (c != null && c.moveToFirst()) {
-                do {
-                    String fullPathString = c.getString(0);
-                    existingFiles.remove(fullPathString);
-                } while (c.moveToNext());
+            for (int i = 0; i < files.length; i++) {
+                String fullPathString = directorys[m] + "/" + files[i];
+                existingFiles.add(fullPathString);
             }
 
-            for (String fileToDelete : existingFiles) {
-                if (Config.LOGV)
-                    Log.v(TAG, "fileToDelete is " + fileToDelete);
-                try {
-                    (new File(fileToDelete)).delete();
-                } catch (SecurityException ex) {
+            try {
+                Cursor c = mMediaProvider.query(
+                        mThumbsUri,
+                        new String [] { "_data" },
+                        null,
+                        null,
+                        null);
+                Log.v(TAG, "pruneDeadThumbnailFiles... " + c);
+                if (c != null && c.moveToFirst()) {
+                    do {
+                        String fullPathString = c.getString(0);
+                        existingFiles.remove(fullPathString);
+                    } while (c.moveToNext());
                 }
-            }
 
-            Log.v(TAG, "/pruneDeadThumbnailFiles... " + c);
-            if (c != null) {
-                c.close();
+                for (String fileToDelete : existingFiles) {
+                    if (Config.LOGV)
+                        Log.v(TAG, "fileToDelete is " + fileToDelete);
+                    try {
+                        (new File(fileToDelete)).delete();
+                    } catch (SecurityException ex) {		
+                    }
+                }
+
+                Log.v(TAG, "/pruneDeadThumbnailFiles... " + c);
+                if (c != null) {
+                    c.close();
+                }
+            } catch (RemoteException e) {
+                // We will soon be killed...
             }
-        } catch (RemoteException e) {
-            // We will soon be killed...
         }
     }
 
@@ -1321,8 +1323,12 @@ public class MediaScanner
 
         long step3 = System.currentTimeMillis();
 
-        if (mOriginalCount == 0 && mImagesUri.equals(Images.Media.getContentUri("external")))
+        if (mOriginalCount == 0 && ((mImagesUri.equals(Images.Media.getContentUri("external"))) ||
+            (mImagesUri.equals(Images.Media.getContentUri("external_sd"))) ||
+            (mImagesUri.equals(Images.Media.getContentUri("external_extsd"))) ||
+            (mImagesUri.equals(Images.Media.getContentUri("external_udisk"))))){
             pruneDeadThumbnailFiles();
+	}
 
         long end = System.currentTimeMillis();
 
