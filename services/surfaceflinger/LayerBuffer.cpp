@@ -741,8 +741,19 @@ void LayerBuffer::OverlaySource::onVisibilityResolved(
             property_get("sys.overscan.percent", value, "0");
             GLfloat a = (GLfloat)(abs(atoi(value)) > 10? 10 : abs(atoi(value)))/100;
             const Rect bounds(mLayer.getTransformedBounds());
-            int x = bounds.left + bounds.width()*a;
-            int y = bounds.top + bounds.height()*a;
+            const DisplayHardware& hw(getFlinger()->graphicPlane(0).displayHardware());
+            uint32_t Width, Height;
+            property_get("ro.sf.hwrotation", value, "0");
+            if (atoi(value) == 90 || atoi(value) == 270) {
+                Width = hw.getHeight();
+                Height = hw.getWidth();
+            } else {
+                Width = hw.getWidth();
+                Height = hw.getHeight();
+            }
+	    
+            int x = bounds.left + Width*a;
+            int y = bounds.top + Height*a;
             int w = bounds.width()*(1-2*a);
             int h = bounds.height()*(1-2*a);
             
