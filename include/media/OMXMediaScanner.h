@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 The Android Open Source Project
+ * Copyright (C) 2009 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,9 +30,13 @@ struct OMXMediaScanner : public MediaScanner {
     OMXMediaScanner();
     virtual ~OMXMediaScanner();
 
+#ifdef ICS
+    virtual MediaScanResult processFile(
+            const char *path, const char *mimeType, MediaScannerClient &client);
+#else
     virtual status_t processFile(
-            const char *path, const char *mimeType,
-            MediaScannerClient &client);
+            const char *path, const char *mimeType, MediaScannerClient &client);
+#endif
 
     virtual char *extractAlbumArt(int fd);
 

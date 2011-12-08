@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/* Copyright 2009-2011 Freescale Semiconductor Inc. */
 
 #ifndef ANDROID_OMXPLAYER_H
 #define ANDROID_OMXPLAYER_H
@@ -20,12 +21,12 @@
 #include <utils/Errors.h>
 #include <media/MediaPlayerInterface.h>
 #include <media/Metadata.h>
+#include <surfaceflinger/ISurface.h>
 #include <ui/egl/android_natives.h>
 
 namespace android {
 
 class ISurfaceTexture;
-class Surface;
 
 class OMXPlayer : public MediaPlayerInterface
 {
@@ -64,6 +65,8 @@ public:
     virtual char*       getTrackName(int index);
     virtual int         getDefaultTrack();
     virtual status_t    selectTrack(int index);
+    virtual status_t    setParameter(int key, const Parcel &request);
+    virtual status_t    getParameter(int key, Parcel *reply);
 
     void                sendEvent(int msg, int ext1=0, int ext2=0) { MediaPlayerBase::sendEvent(msg, ext1, ext2); }
 
