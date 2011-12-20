@@ -234,6 +234,7 @@ private:
     ANativeWindow*   nativeWindow;
     android_native_buffer_t*   buffer;
     android_native_buffer_t*   previousBuffer;
+    android_native_buffer_t*   oldPreviousBuffer;
     gralloc_module_t const*    module;
     copybit_device_t*          blitengine;
     int width;
@@ -252,6 +253,13 @@ private:
             top    = max(top, r.top);
             right  = min(right, r.right);
             bottom = min(bottom, r.bottom);
+            return *this;
+        }
+        Rect& orSelf(const Rect& r) {
+            left   = min(left, r.left);
+            top    = min(top, r.top);
+            right  = max(right, r.right);
+            bottom = max(bottom, r.bottom);
             return *this;
         }
         bool isEmpty() const {
@@ -346,6 +354,7 @@ private:
 
     Rect dirtyRegion;
     Rect oldDirtyRegion;
+    Rect prevOldDirtyRegion;
 };
 
 egl_window_surface_v2_t::egl_window_surface_v2_t(EGLDisplay dpy,
@@ -354,7 +363,7 @@ egl_window_surface_v2_t::egl_window_surface_v2_t(EGLDisplay dpy,
         ANativeWindow* window)
     : egl_surface_t(dpy, config, depthFormat), 
     nativeWindow(window), buffer(0), previousBuffer(0), module(0),
-    blitengine(0), bits(NULL)
+    blitengine(0), bits(NULL), oldPreviousBuffer(0)
 {
     hw_module_t const* pModule;
     hw_get_module(GRALLOC_HARDWARE_MODULE_ID, &pModule);
@@ -547,7 +556,11 @@ EGLBoolean egl_window_surface_v2_t::swapBuffers()
     if (!dirtyRegion.isEmpty()) {
         dirtyRegion.andSelf(Rect(buffer->width, buffer->height));
         if (previousBuffer) {
-            const Region copyBack(Region::subtract(oldDirtyRegion, dirtyRegion));
+            if(oldPreviousBuffer == buffer){
+                prevOldDirtyRegion = oldDirtyRegion;
+            }
+            prevOldDirtyRegion.orSelf(oldDirtyRegion);
+            const Region copyBack(Region::subtract(prevOldDirtyRegion, dirtyRegion));
             if (!copyBack.isEmpty()) {
                 void* prevBits;
                 if (lock(previousBuffer, 
@@ -558,8 +571,11 @@ EGLBoolean egl_window_surface_v2_t::swapBuffers()
                 }
             }
         }
+        prevOldDirtyRegion = oldDirtyRegion;
         oldDirtyRegion = dirtyRegion;
     }
+
+    oldPreviousBuffer = previousBuffer;
 
     if (previousBuffer) {
         previousBuffer->common.decRef(&previousBuffer->common); 
