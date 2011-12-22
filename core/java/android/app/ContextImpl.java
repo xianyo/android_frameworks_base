@@ -76,6 +76,8 @@ import android.net.wifi.IWifiManager;
 import android.net.wifi.WifiManager;
 import android.net.IEthernetManager;
 import android.net.EthernetManager;
+import android.net.IPppoeManager;
+import android.net.PppoeManager;
 import android.nfc.NfcManager;
 import android.os.Binder;
 import android.os.Bundle;
@@ -175,6 +177,7 @@ class ContextImpl extends Context {
     private static ThrottleManager sThrottleManager;
     private static WifiManager sWifiManager;
     private static EthernetManager sEthernetManager;
+    private static PppoeManager sPppoeManager;
     private static LocationManager sLocationManager;
     private static final HashMap<String, SharedPreferencesImpl> sSharedPrefs =
             new HashMap<String, SharedPreferencesImpl>();
@@ -948,6 +951,8 @@ class ContextImpl extends Context {
             return getWifiManager();
         } else if (ETHERNET_SERVICE.equals(name)) {
             return getEthernetManager();
+        } else if (PPPOE_SERVICE.equals(name)) {
+            return getPppoeManager();
         } else if (NOTIFICATION_SERVICE.equals(name)) {
             return getNotificationManager();
         } else if (KEYGUARD_SERVICE.equals(name)) {
@@ -1087,6 +1092,18 @@ class ContextImpl extends Context {
         return sEthernetManager;
     }
     
+    private PppoeManager getPppoeManager()
+    {
+        synchronized (sSync) {
+            if (sPppoeManager == null) {
+                IBinder b = ServiceManager.getService(PPPOE_SERVICE);
+                IPppoeManager service = IPppoeManager.Stub.asInterface(b);
+                sPppoeManager = new PppoeManager(service, mMainThread.getHandler());
+            }
+        }
+        return sPppoeManager;
+    }
+
     private NotificationManager getNotificationManager() {
         synchronized (mSync) {
             if (mNotificationManager == null) {

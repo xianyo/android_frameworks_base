@@ -349,6 +349,13 @@
         android:description="@string/permdesc_accessEthernetState"
         android:label="@string/permlab_accessEthernetState" />
 
+    <!-- Allows applications to access information about Pppoe networks -->
+    <permission android:name="android.permission.ACCESS_PPPOE_STATE"
+        android:permissionGroup="android.permission-group.NETWORK"
+        android:protectionLevel="normal"
+        android:description="@string/permdesc_accessPppoeState"
+        android:label="@string/permlab_accessPppoeState" />
+
     <!-- Allows applications to connect to paired bluetooth devices -->
     <permission android:name="android.permission.BLUETOOTH"
         android:permissionGroup="android.permission-group.NETWORK"
@@ -873,6 +880,12 @@
         android:description="@string/permdesc_changeEthernetState"
         android:label="@string/permlab_changeEthernetState" />
 
+    <!-- Allows applications to change Pppoe connectivity state -->
+    <permission android:name="android.permission.CHANGE_PPPOE_STATE"
+        android:permissionGroup="android.permission-group.SYSTEM_TOOLS"
+        android:protectionLevel="dangerous"
+        android:description="@string/permdesc_changePppoeState"
+        android:label="@string/permlab_changePppoeState" />
 
     <!-- Allows applications to enter Wi-Fi Multicast mode -->
     <permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE"

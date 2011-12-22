@@ -1469,6 +1469,16 @@ public abstract class Context {
     public static final String ETHERNET_SERVICE = "ethernet";
 
     /**
+     * Use with {@link #getSystemService} to retrieve a {@link
+     * android.net.PppoeManager} for handling management of
+     * pppoe access.
+     *
+     * @see #getSystemService
+     * @see android.net.PppoeManager
+     */
+    public static final String PPPOE_SERVICE = "pppoe";
+
+    /**
      * Use with {@link #getSystemService} to retrieve a
      * {@link android.media.AudioManager} for handling management of volume,
      * ringer modes and audio routing.

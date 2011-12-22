@@ -1167,6 +1167,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             loadBooleanSetting(stmt, Settings.Secure.ETHERNET_ON,
                     R.bool.def_ethernet_on);
                         
+            loadBooleanSetting(stmt, Settings.Secure.PPPOE_ON,
+                    R.bool.def_pppoe_on);
+
             String wifiWatchList = SystemProperties.get("ro.com.android.wifi-watchlist");
             if (!TextUtils.isEmpty(wifiWatchList)) {
                 loadSetting(stmt, Settings.Secure.WIFI_WATCHDOG_WATCH_LIST, wifiWatchList);

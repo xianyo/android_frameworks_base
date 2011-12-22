@@ -136,7 +136,7 @@ public class EthernetManager {
      * @see #EXTRA_BSSID
      */
     @SdkConstant(SdkConstantType.BROADCAST_INTENT_ACTION)
-    public static final String NETWORK_STATE_CHANGED_ACTION = "android.net.STATE_CHANGE";
+    public static final String NETWORK_STATE_CHANGED_ACTION = "android.net.ethernet.STATE_CHANGE";
     /**
      * The lookup key for a {@link android.net.NetworkInfo} object associated with the
      * Ethernet network. Retrieve with

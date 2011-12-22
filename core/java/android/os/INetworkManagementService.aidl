@@ -151,6 +151,16 @@ interface INetworkManagementService
     void detachPppd(String tty);
 
     /**
+     * start a PPP server daemon.
+     */
+    void startPppd_pppoe(String username, String password);
+
+    /**
+     * stop a PPP server daemon.
+     */
+    void stopPppd_pppoe();
+
+    /**
      * Turn on USB RNDIS support - this will turn off thinks like adb/mass-storage
      */
     void startUsbRNDIS();

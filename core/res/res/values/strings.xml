@@ -1123,6 +1123,12 @@
       the information about the state of Ethernet.</string>
 
     <!-- Title of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
+    <string name="permlab_accessPppoeState">view Pppoe state</string>
+    <!-- Description of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
+    <string name="permdesc_accessPppoeState">Allows an application to view
+      the information about the state of Pppoe.</string>
+
+    <!-- Title of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
     <string name="permlab_changeEthernetMulticastState">allow Ethernet Multicast
       reception</string>
     <!-- Description of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
@@ -1137,6 +1143,13 @@
     <string name="permdesc_changeEthernetState">Allows an application to connect
       to and disconnect from Ethernet access points, and to make changes to
       configured Ethernet networks.</string>
+
+    <!-- Title of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
+    <string name="permlab_changePppoeState">change Pppoe state</string>
+    <!-- Description of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
+    <string name="permdesc_changePppoeState">Allows an application to connect
+      to and disconnect from Pppoe access points, and to make changes to
+      configured Pppoe networks.</string>
 
     <!-- Title of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
     <string name="permlab_accessWifiState">view Wi-Fi state</string>

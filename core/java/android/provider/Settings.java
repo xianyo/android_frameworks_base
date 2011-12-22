@@ -2794,6 +2794,31 @@ public final class Settings {
         public static final String ETHERNET_SAVED_STATE = "ethernet_saved_state";
         
         /**
+         * Whether the pppoe should be on.  Only the pppoe service should touch this.
+         */
+        public static final String PPPOE_ON = "pppoe_on";
+
+        /**
+         * Used to save the Pppoe_ON state prior to tethering.
+         * This state will be checked to restore Pppoe after
+         * the user turns off tethering.
+         *
+         * @hide
+         */
+        public static final String PPPOE_SAVED_STATE = "pppoe_saved_state";
+
+        /**
+         * Save the pppoe username.  Only the pppoe service should touch this.
+         */
+        public static final String PPPOE_USERNAME = "pppoe_username";
+
+        /**
+         * Save the pppoe password.  Only the pppoe service should touch this.
+         */
+        public static final String PPPOE_PASSWORD = "pppoe_password";
+
+
+        /**
          * Whether background data usage is allowed by the user. See
          * ConnectivityManager for more info.
          */

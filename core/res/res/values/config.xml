@@ -39,6 +39,7 @@
        <item><xliff:g id="id">volume</xliff:g></item>
        <item><xliff:g id="id">wifi</xliff:g></item>
        <item><xliff:g id="id">ethernet</xliff:g></item>
+       <item><xliff:g id="id">pppoe</xliff:g></item>
        <item><xliff:g id="id">hdmi</xliff:g></item>
        <item><xliff:g id="id">cdma_eri</xliff:g></item>
        <item><xliff:g id="id">data_connection</xliff:g></item>
@@ -104,6 +105,7 @@
         <item>"mobile_supl,3,0,2"</item>
         <item>"mobile_hipri,5,0,3"</item>
         <item>"ethernet,9,9,9"</item>
+        <item>"pppoe,10,10,10"</item>
     </string-array>
 
     <!-- This string array should be overridden by the device to present a list of radio
@@ -115,6 +117,7 @@
         <item>"1,1"</item>
         <item>"0,1"</item>
 		<item>"9,1"</item>
+		<item>"10,1"</item>		
     </string-array>
 
     <!-- List of regexpressions describing the interface (if any) that represent tetherable

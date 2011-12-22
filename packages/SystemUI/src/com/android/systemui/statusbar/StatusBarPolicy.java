@@ -499,6 +499,10 @@ public class StatusBarPolicy {
     private static final int sEthernetSignalImage =
             R.drawable.stat_sys_ethernet_signal_0;
 
+    //pppoe
+    private static final int sPppoeSignalImage =
+            R.drawable.stat_sys_pppoe_signal_0;
+
     //hdmi
     private static final int sHdmiSignalImage =
             R.drawable.stat_sys_hdmi_signal_0;
@@ -976,6 +980,22 @@ public class StatusBarPolicy {
             }
             updateSignalStrength(); // apply any change in mInetCondition
             break;
+        case ConnectivityManager.TYPE_PPPOE:
+            mInetCondition = inetCondition;
+            if (info.isConnected()) {
+                int iconId = sPppoeSignalImage;
+                mService.setIcon("pppoe", iconId, 0);
+                // Hide the icon since we're not connected
+                mService.setIconVisibility("pppoe", true);            
+            }else
+            {
+                int iconId = sPppoeSignalImage;
+                mService.setIcon("pppoe", iconId, 0);
+                // Hide the icon since we're not connected
+                mService.setIconVisibility("pppoe", false);                   
+            }
+            updateSignalStrength(); // apply any change in mInetCondition
+			break;
         }
     }
 

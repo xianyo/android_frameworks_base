@@ -211,6 +211,9 @@ class NetworkManagementService extends INetworkManagementService.Stub {
                 } else if (cooked[2].equals("changed") && cooked.length == 5) {
                     notifyInterfaceLinkStatusChanged(cooked[3], cooked[4].equals("up"));
                     return true;
+                } else if (cooked[2].equals("linkstate") && cooked.length == 5) {
+                    notifyInterfaceLinkStatusChanged(cooked[3], cooked[4].equals("up"));
+					return true;
                 }
                 throw new IllegalStateException(
                         String.format("Invalid event from daemon (%s)", raw));
@@ -549,6 +552,28 @@ class NetworkManagementService extends INetworkManagementService.Stub {
             mConnector.doCommand(String.format("pppd detach %s", tty));
         } catch (NativeDaemonConnectorException e) {
             throw new IllegalStateException("Error communicating to native daemon to detach pppd", e);
+        }
+    }
+
+    public void startPppd_pppoe(String username, String password) throws IllegalStateException {
+        try {
+            mContext.enforceCallingOrSelfPermission(
+                    android.Manifest.permission.CHANGE_NETWORK_STATE, "NetworkManagementService");
+            mConnector.doCommand(String.format("pppd start_pppoe %s %s",
+                    username,
+                    password));
+        } catch (NativeDaemonConnectorException e) {
+            throw new IllegalStateException("Error communicating to native daemon to start pppd_pppoe", e);
+        }
+    }
+
+    public void stopPppd_pppoe() throws IllegalStateException {
+        mContext.enforceCallingOrSelfPermission(
+                android.Manifest.permission.CHANGE_NETWORK_STATE, "NetworkManagementService");
+        try {
+            mConnector.doCommand(String.format("pppd stop_pppoe"));
+        } catch (NativeDaemonConnectorException e) {
+            throw new IllegalStateException("Error communicating to native daemon to stop pppd_pppoe", e);
         }
     }
 

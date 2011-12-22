@@ -34,6 +34,7 @@ import android.net.NetworkStateTracker;
 import android.net.wifi.WifiStateTracker;
 import android.net.wimax.WimaxManagerConstants;
 import android.net.EthernetStateTracker;
+import android.net.PppoeStateTracker;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
@@ -368,8 +369,18 @@ public class ConnectivityService extends IConnectivityManager.Stub {
         boolean noMobileData = !getMobileDataEnabled();
         for (int netType : mPriorityList) {
             switch (mNetAttributes[netType].mRadio) {
+            case ConnectivityManager.TYPE_PPPOE:
+                Slog.d(TAG, "Starting Pppoe Service.");
+                PppoeStateTracker pst = new PppoeStateTracker(context, mHandler);
+                PppoeService pppoeService = new PppoeService(context, pst);
+                ServiceManager.addService(Context.PPPOE_SERVICE, pppoeService);
+                pst.startMonitoring();
+                pppoeService.startPppoe();
+                mNetTrackers[ConnectivityManager.TYPE_PPPOE] = pst;
+
+                break;
             case ConnectivityManager.TYPE_ETHERNET:
-                Slog.v(TAG, "Starting Ethernet Service.");
+                Slog.d(TAG, "Starting Ethernet Service.");
                 EthernetStateTracker est = new EthernetStateTracker(context, mHandler);
                 EthernetService ethernetService = new EthernetService(context, est);
                 ServiceManager.addService(Context.ETHERNET_SERVICE, ethernetService);
@@ -379,7 +390,7 @@ public class ConnectivityService extends IConnectivityManager.Stub {
                 
                 break;
             case ConnectivityManager.TYPE_WIFI:
-                Slog.v(TAG, "Starting Wifi Service.");
+                Slog.d(TAG, "Starting Wifi Service.");
                 WifiStateTracker wst = new WifiStateTracker(context, mHandler);
                 WifiService wifiService = new WifiService(context, wst);
                 ServiceManager.addService(Context.WIFI_SERVICE, wifiService);
