@@ -213,6 +213,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     boolean mLidOpen;
     int mUiMode = Configuration.UI_MODE_TYPE_NORMAL;
     int mDockMode = Intent.EXTRA_DOCK_STATE_UNDOCKED;
+    int mDefaultOrientation = Surface.ROTATION_0;
     int mLidOpenRotation;
     int mCarDockRotation;
     int mDeskDockRotation;
@@ -560,6 +561,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         mBroadcastWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
                 "PhoneWindowManager.mBroadcastWakeLock");
         mEnableShiftMenuBugReports = "1".equals(SystemProperties.get("ro.debuggable"));
+        mDefaultOrientation = Integer.parseInt(SystemProperties.get("ro.orientation","0"));
         mLidOpenRotation = readRotation(
                 com.android.internal.R.integer.config_lidOpenRotation);
         mCarDockRotation = readRotation(
@@ -2119,7 +2121,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 if (useSensorForOrientationLp(orientation)) {
                     return mOrientationListener.getCurrentRotation(lastRotation);
                 }
-                return Surface.ROTATION_0;
+                return mDefaultOrientation;
             }
         }
     }
@@ -2254,7 +2256,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
     void updateRotation(int animFlags) {
         mPowerManager.setKeyboardVisibility(mLidOpen);
-        int rotation = Surface.ROTATION_0;
+        int rotation = mDefaultOrientation;
         if (mLidOpen) {
             rotation = mLidOpenRotation;
         } else if (mDockMode == Intent.EXTRA_DOCK_STATE_CAR && mCarDockRotation >= 0) {
