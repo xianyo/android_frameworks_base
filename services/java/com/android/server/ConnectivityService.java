@@ -2080,11 +2080,10 @@ public class ConnectivityService extends IConnectivityManager.Stub {
             // don't signal a reconnect for anything lower or equal priority than our
             // current connected default
             // TODO - don't filter by priority now - nice optimization but risky
-//            int currentPriority = -1;
-//            if (mActiveDefaultNetwork != -1) {
-//                currentPriority = mNetConfigs[mActiveDefaultNetwork].mPriority;
-//            }
-
+            int currentPriority = -1;
+            if (mActiveDefaultNetwork != -1) {
+                currentPriority = mNetConfigs[mActiveDefaultNetwork].priority;
+            }
             for (int checkType=0; checkType <= ConnectivityManager.MAX_NETWORK_TYPE; checkType++) {
                 if (checkType == prevNetType) continue;
                 if (mNetConfigs[checkType] == null) continue;
@@ -2102,7 +2101,7 @@ public class ConnectivityService extends IConnectivityManager.Stub {
 
 //                if (!mNetTrackers[checkType].isAvailable()) continue;
 
-//                if (currentPriority >= mNetConfigs[checkType].mPriority) continue;
+                if (currentPriority >= mNetConfigs[checkType].priority) continue;
 
                 NetworkStateTracker checkTracker = mNetTrackers[checkType];
                 NetworkInfo checkInfo = checkTracker.getNetworkInfo();
