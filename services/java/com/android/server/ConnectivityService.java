@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2008 The Android Open Source Project
+ * Copyright (C) 2013 Freescale Semiconductor, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -412,8 +413,6 @@ public class ConnectivityService extends IConnectivityManager.Stub {
                 ConnectivityManager.MAX_NETWORK_TYPE+1];
         mCurrentLinkProperties = new LinkProperties[ConnectivityManager.MAX_NETWORK_TYPE+1];
 
-        mNetworkPreference = getPersistedNetworkPreference();
-
         mRadioAttributes = new RadioAttributes[ConnectivityManager.MAX_RADIO_TYPE+1];
         mNetConfigs = new NetworkConfig[ConnectivityManager.MAX_NETWORK_TYPE+1];
 
@@ -495,6 +494,19 @@ public class ConnectivityService extends IConnectivityManager.Stub {
             }
         }
 
+        //Update mNetworkPreference according to user mannually first then overlay config.xml
+        mNetworkPreference = getPersistedNetworkPreference();
+        if (mNetworkPreference == -1) {
+            for (int n : mPriorityList) {
+                if (mNetConfigs[n].isDefault() && ConnectivityManager.isNetworkTypeValid(n)) {
+                    mNetworkPreference = n;
+                    break;
+                }
+            }
+            if (mNetworkPreference == -1) {
+                loge("You should set at least one default Network in config.xml !!!");
+            }
+        }
         mNetRequestersPids = new ArrayList[ConnectivityManager.MAX_NETWORK_TYPE+1];
         for (int i : mPriorityList) {
             mNetRequestersPids[i] = new ArrayList();
@@ -726,11 +738,8 @@ public class ConnectivityService extends IConnectivityManager.Stub {
 
         final int networkPrefSetting = Settings.Global
                 .getInt(cr, Settings.Global.NETWORK_PREFERENCE, -1);
-        if (networkPrefSetting != -1) {
-            return networkPrefSetting;
-        }
 
-        return ConnectivityManager.DEFAULT_NETWORK_PREFERENCE;
+        return networkPrefSetting;
     }
 
     /**

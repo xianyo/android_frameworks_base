@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2007 The Android Open Source Project
+ * Copyright (C) 2013 Freescale Semiconductor, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -2179,9 +2180,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
             loadBooleanSetting(stmt, Settings.Global.INSTALL_NON_MARKET_APPS,
                     R.bool.def_install_non_market_apps);
-
-            loadIntegerSetting(stmt, Settings.Global.NETWORK_PREFERENCE,
-                    R.integer.def_network_preference);
 
             loadBooleanSetting(stmt, Settings.Global.USB_MASS_STORAGE_ENABLED,
                     R.bool.def_usb_mass_storage_enabled);
