@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2006 The Android Open Source Project
+ * Copyright (C) 2013 Freescale Semiconductor, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -432,7 +433,7 @@ public class AudioService extends IAudioService.Stub {
     public final static int STREAM_REMOTE_MUSIC = -200;
 
     // Devices for which the volume is fixed and VolumePanel slider should be disabled
-    final int mFixedVolumeDevices = AudioSystem.DEVICE_OUT_AUX_DIGITAL |
+    int mFixedVolumeDevices = AudioSystem.DEVICE_OUT_AUX_DIGITAL |
             AudioSystem.DEVICE_OUT_DGTL_DOCK_HEADSET |
             AudioSystem.DEVICE_OUT_ANLG_DOCK_HEADSET |
             AudioSystem.DEVICE_OUT_ALL_USB;
@@ -482,6 +483,9 @@ public class AudioService extends IAudioService.Stub {
         MAX_STREAM_VOLUME[AudioSystem.STREAM_VOICE_CALL] = SystemProperties.getInt(
             "ro.config.vc_call_vol_steps",
            MAX_STREAM_VOLUME[AudioSystem.STREAM_VOICE_CALL]);
+
+        if (SystemProperties.get("ro.product.device").contains("hdmidongle"))
+		mFixedVolumeDevices &= ~AudioSystem.DEVICE_OUT_AUX_DIGITAL;
 
         sSoundEffectVolumeDb = context.getResources().getInteger(
                 com.android.internal.R.integer.config_soundEffectVolumeDb);
