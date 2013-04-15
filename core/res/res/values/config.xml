@@ -142,6 +142,7 @@
          tethering on a new interface called "foo2" add <item>"foo\\d"</item> to the array -->
     <string-array translatable="false" name="config_tether_upstream_regexs">
 	<item>ppp.*</item>
+	<item>"eth\\d"</item>
 	<item>wlan.*</item>
     </string-array>
 
