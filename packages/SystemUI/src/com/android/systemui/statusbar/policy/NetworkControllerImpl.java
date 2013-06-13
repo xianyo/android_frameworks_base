@@ -802,6 +802,11 @@ public class NetworkControllerImpl extends BroadcastReceiver
             }
         }
 
+        if(!mDataConnected){
+           mDataTypeIconId = 0;
+           mQSDataTypeIconId = 0;
+        }
+
         if (isRoaming()) {
             mDataTypeIconId = TelephonyIcons.ROAMING_ICON;
             mQSDataTypeIconId = TelephonyIcons.QS_DATA_R[mInetCondition];
