@@ -658,6 +658,12 @@ class QuickSettings {
             @Override
             public void onClick(View v) {
                 startSettingsActivity(AlarmClock.ACTION_SHOW_ALARMS);
+                // TODO: Jump into the alarm application
+                Intent intent = new Intent();
+                intent.setComponent(new ComponentName(
+                        "com.android.deskclock",
+                        "com.android.deskclock.AlarmClock"));
+                startSettingsActivity(intent);
             }
         });
         mModel.addAlarmTile(alarmTile, new QuickSettingsModel.RefreshCallback() {
