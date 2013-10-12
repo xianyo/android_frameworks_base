@@ -28,6 +28,7 @@ import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.SystemProperties;
 import android.util.Log;
+import android.os.PowerManager;
 
 import com.android.server.net.BaseNetworkObserver;
 
@@ -51,11 +52,13 @@ public class EthernetDataTracker extends BaseNetworkStateTracker {
 
     private static boolean mLinkUp;
     private static boolean mNfsmode;
+    private static boolean mAlwayson;
     private LinkProperties mLinkProperties;
     private LinkCapabilities mLinkCapabilities;
     private NetworkInfo mNetworkInfo;
     private InterfaceObserver mInterfaceObserver;
     private String mHwAddr;
+    private static PowerManager.WakeLock mEthernetWakeLock;
 
     /* For sending events to connectivity service handler */
     private Handler mCsHandler;
@@ -85,12 +88,17 @@ public class EthernetDataTracker extends BaseNetworkStateTracker {
                 Log.d(TAG, "Interface " + iface + " link " + (up ? "up" : "down"));
                 mLinkUp = up;
                 mNfsmode = "yes".equals(SystemProperties.get("ro.nfs.mode", "no"));
+                mAlwayson = "yes".equals(SystemProperties.get("ro.ethernet.alwayson.mode", "yes"));
                 mTracker.mNetworkInfo.setIsAvailable(up);
 
                 // use DHCP
                 if (up) {
+                    if (mAlwayson)
+                        mEthernetWakeLock.acquire();
                     mTracker.reconnect();
                 } else {
+                    if (mAlwayson)
+                        mEthernetWakeLock.release();
                     mTracker.disconnect();
                 }
             }
@@ -214,6 +222,9 @@ public class EthernetDataTracker extends BaseNetworkStateTracker {
         mContext = context;
         mCsHandler = target;
 
+        final PowerManager powerManager = (PowerManager)context.getSystemService(
+                Context.POWER_SERVICE);
+        mEthernetWakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
         // register for notifications from NetworkManagement Service
         IBinder b = ServiceManager.getService(Context.NETWORKMANAGEMENT_SERVICE);
         mNMService = INetworkManagementService.Stub.asInterface(b);
