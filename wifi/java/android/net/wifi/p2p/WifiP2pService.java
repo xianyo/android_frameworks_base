@@ -2072,15 +2072,19 @@ public class WifiP2pService extends IWifiP2pManager.Stub {
                         SERVER_ADDRESS), 24));
             ifcg.setInterfaceUp();
             mNwService.setInterfaceConfig(intf, ifcg);
+            /* This starts the dnsmasq server */
+            String[] tetheringDhcpRanges = mCm.getTetheredDhcpRanges();
+            if (mNwService.isTetheringStarted()) {
+                if (DBG) logd("Stop exist tethering and will restart it");
+                mNwService.stopTethering();
+                mNwService.tetherInterface(intf);
+            }
+            mNwService.startTethering(tetheringDhcpRanges);
         } catch (Exception e) {
             loge("Error configuring interface " + intf + ", :" + e);
             return;
         }
-        if(mCm.tether(intf) != ConnectivityManager.TETHER_ERROR_NO_ERROR) {
-            loge("Error tethering on " + intf);
-            return;
-        }
-        logd("Started tethering on " + intf);
+        logd("Started Dhcp server on " + intf);
    }
 
     private void stopDhcpServer(String intf) {
@@ -2088,12 +2092,15 @@ public class WifiP2pService extends IWifiP2pManager.Stub {
         /* refer to WifiStateMachine.java */
         InterfaceConfiguration ifcg = null;
         try {
-            ifcg = mNwService.getInterfaceConfig(intf);
-            if (ifcg != null) {
-                ifcg.setLinkAddress(
-                        new LinkAddress(NetworkUtils.numericToInetAddress("0.0.0.0"), 0));
-                mNwService.setInterfaceConfig(intf, ifcg);
+            for (String temp : mNwService.listTetheredInterfaces()) {
+                logd("List all interfaces " + temp);
+                if (temp.compareTo(intf) != 0 ) {
+                    logd("Found other tethering interface so keep tethering alive");
+                    mNwService.untetherInterface(intf);
+                    return;
+                }
             }
+            mNwService.stopTethering();
         } catch (Exception e) {
             loge("Error resetting interface " + intf + ", :" + e);
         }
