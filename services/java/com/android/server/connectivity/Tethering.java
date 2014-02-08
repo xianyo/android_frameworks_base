@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2010 The Android Open Source Project
+ * Copyright (C) 2014 Freescale Semiconductor, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -108,6 +109,7 @@ public class Tethering extends INetworkManagementEventObserver.Stub {
 
     // USB is  192.168.42.1 and 255.255.255.0
     // Wifi is 192.168.43.1 and 255.255.255.0
+    // Wifi P2P is 192.168.49.1 and 255.255.255.0
     // BT is limited to max default of 5 connections. 192.168.44.1 to 192.168.48.1
     // with 255.255.255.0
 
@@ -116,7 +118,7 @@ public class Tethering extends INetworkManagementEventObserver.Stub {
         "192.168.42.2", "192.168.42.254", "192.168.43.2", "192.168.43.254",
         "192.168.44.2", "192.168.44.254", "192.168.45.2", "192.168.45.254",
         "192.168.46.2", "192.168.46.254", "192.168.47.2", "192.168.47.254",
-        "192.168.48.2", "192.168.48.254",
+        "192.168.48.2", "192.168.48.254", "192.168.49.2", "192.168.49.254",
     };
 
     private String[] mDefaultDnsServers;
@@ -255,6 +257,10 @@ public class Tethering extends INetworkManagementEventObserver.Stub {
         synchronized (mPublicSync) {
             for (String regex : mTetherableWifiRegexs) {
                 if (iface.matches(regex)) return true;
+            }
+            String regex = "p2p0";
+            if (iface.matches(".*" + regex + ".*")) {
+                return true;
             }
             return false;
         }
