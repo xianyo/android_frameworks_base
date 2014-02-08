@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2008 The Android Open Source Project
- * Copyright (C) 2013 Freescale Semiconductor, Inc.
+ * Copyright (C) 2013-2014 Freescale Semiconductor, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -3292,6 +3292,11 @@ public class ConnectivityService extends IConnectivityManager.Stub {
     public String[] getTetherableIfaces() {
         enforceTetherAccessPermission();
         return mTethering.getTetherableIfaces();
+    }
+
+    public String[] getTetheredDhcpRanges() {
+        enforceConnectivityInternalPermission();
+        return mTethering.getTetheredDhcpRanges();
     }
 
     public String[] getTetheredIfaces() {
