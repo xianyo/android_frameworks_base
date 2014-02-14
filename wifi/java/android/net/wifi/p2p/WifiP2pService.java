@@ -2067,11 +2067,6 @@ public class WifiP2pService extends IWifiP2pManager.Stub {
             ifcg.setInterfaceUp();
             mNwService.setInterfaceConfig(intf, ifcg);
             /* This starts the dnsmasq server */
-            mNwService.tetherInterface(intf);
-            if (mNwService.isTetheringStarted()) {
-                if (DBG) logd("stop exist tethering and will restart it");
-                mNwService.stopTethering();
-            }
             mNwService.startTethering(DHCP_RANGE);
         } catch (Exception e) {
             loge("Error configuring interface " + intf + ", :" + e);
