@@ -228,6 +228,8 @@ public class TaskStack {
     }
 
     boolean isDimming(WindowStateAnimator winAnimator) {
+        mService.mAnimator.getScreenRotationAnimationLocked(
+                             winAnimator.mWin.getDisplayId());
         return mDimWinAnimator == winAnimator && mDimLayer.isDimming();
     }
 
