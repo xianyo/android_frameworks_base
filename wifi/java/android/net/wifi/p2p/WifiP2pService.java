@@ -88,7 +88,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-
 /**
  * WifiP2pService includes a state machine to perform Wi-Fi p2p operations. Applications
  * communicate with this service to issue device discovery and connectivity requests
@@ -368,6 +367,7 @@ public class WifiP2pService extends IWifiP2pManager.Stub {
     public void setMiracastMode(int mode) {
         enforceConnectivityInternalPermission();
         mP2pStateMachine.sendMessage(SET_MIRACAST_MODE, mode);
+        mP2pStateMachine.setMiracastMode(mode);
     }
 
     @Override
@@ -449,6 +449,13 @@ public class WifiP2pService extends IWifiP2pManager.Stub {
 
         // Saved WifiP2pGroup from invitation request
         private WifiP2pGroup mSavedP2pGroup;
+
+        // For indicate the WifiDisplaySink the third device impact the current connection.
+        private int mMiracastMode = WifiP2pManager.MIRACAST_DISABLED;
+        public void setMiracastMode(int mode) {
+            mMiracastMode = mode;
+        }
+
 
         P2pStateMachine(String name, boolean p2pSupported) {
             super(name);
@@ -1741,6 +1748,7 @@ public class WifiP2pService extends IWifiP2pManager.Stub {
                             if (!mAutonomousGroup && mGroup.isClientListEmpty()) {
                                 logd("Client list empty, remove non-persistent p2p group");
                                 mWifiNative.p2pGroupRemove(mGroup.getInterface());
+                                mP2pStateMachine.setMiracastMode(WifiP2pManager.MIRACAST_DISABLED);
                                 // We end up sending connection changed broadcast
                                 // when this happens at exit()
                             } else {
@@ -1889,6 +1897,13 @@ public class WifiP2pService extends IWifiP2pManager.Stub {
                 case WifiMonitor.P2P_PROV_DISC_PBC_REQ_EVENT:
                 case WifiMonitor.P2P_PROV_DISC_ENTER_PIN_EVENT:
                 case WifiMonitor.P2P_PROV_DISC_SHOW_PIN_EVENT:
+                    if (mMiracastMode != WifiP2pManager.MIRACAST_DISABLED) {
+                        if (DBG) logd("We are in wfd connection and nobody can disturib us two!");
+                        break;
+                    } else {
+                         if (DBG) logd("no wfd connection just go on.");
+                    }
+
                     WifiP2pProvDiscEvent provDisc = (WifiP2pProvDiscEvent) message.obj;
                     mSavedPeerConfig = new WifiP2pConfig();
                     mSavedPeerConfig.deviceAddress = provDisc.device.deviceAddress;
