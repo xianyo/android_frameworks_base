@@ -87,7 +87,6 @@ public class EthernetDataTracker extends BaseNetworkStateTracker {
             if (mIface.equals(iface)) {
                 Log.d(TAG, "Interface " + iface + " link " + (up ? "up" : "down"));
                 mLinkUp = up;
-                mNfsmode = "yes".equals(SystemProperties.get("ro.nfs.mode", "no"));
                 mAlwayson = "yes".equals(SystemProperties.get("ro.ethernet.alwayson.mode", "yes"));
                 mTracker.mNetworkInfo.setIsAvailable(up);
 
@@ -229,6 +228,7 @@ public class EthernetDataTracker extends BaseNetworkStateTracker {
         IBinder b = ServiceManager.getService(Context.NETWORKMANAGEMENT_SERVICE);
         mNMService = INetworkManagementService.Stub.asInterface(b);
 
+        mNfsmode = "yes".equals(SystemProperties.get("ro.nfs.mode", "no"));
         mInterfaceObserver = new InterfaceObserver(this);
 
         // enable and try to connect to an ethernet interface that
@@ -280,7 +280,7 @@ public class EthernetDataTracker extends BaseNetworkStateTracker {
      * Re-enable connectivity to a network after a {@link #teardown()}.
      */
     public boolean reconnect() {
-        if (mLinkUp) {
+        if (mLinkUp || mNfsmode) {
             mTeardownRequested.set(false);
             runDhcp();
         }
