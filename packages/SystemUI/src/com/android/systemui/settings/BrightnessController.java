@@ -47,12 +47,24 @@ public class BrightnessController implements ToggleSlider.Listener {
     private final CurrentUserTracker mUserTracker;
     private final Handler mHandler;
     private final BrightnessObserver mBrightnessObserver;
+    private AsyncTask mSettingsTask;
 
     private ArrayList<BrightnessStateChangeCallback> mChangeCallbacks =
             new ArrayList<BrightnessStateChangeCallback>();
 
     public interface BrightnessStateChangeCallback {
         public void onBrightnessLevelChanged();
+    }
+
+    private class UpdateSettingsTask extends AsyncTask<Integer, Void, Void> {
+                @Override
+                protected Void doInBackground(Integer... params) {
+                      Integer val = params[0];
+                      Settings.System.putIntForUser(mContext.getContentResolver(),
+                               Settings.System.SCREEN_BRIGHTNESS, val,
+                               UserHandle.USER_CURRENT);
+                      return null;
+                }
     }
 
     /** ContentObserver to watch brightness **/
@@ -162,16 +174,23 @@ public class BrightnessController implements ToggleSlider.Listener {
                 : Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL);
         updateIcon(automatic);
         if (!automatic) {
-            final int val = value + mMinimumBacklight;
+            final Integer val = value + mMinimumBacklight;
+            Integer []params = new Integer[1];
+            params[0] = val;
             setBrightness(val);
             if (!tracking) {
-                AsyncTask.execute(new Runnable() {
-                        public void run() {
-                            Settings.System.putIntForUser(mContext.getContentResolver(),
-                                    Settings.System.SCREEN_BRIGHTNESS, val,
-                                    UserHandle.USER_CURRENT);
-                        }
-                    });
+                if(mSettingsTask != null) {
+                    // If the Task is in running status, and cannot cancel
+                    // Just ignore this brightness Settings
+                    // The contentObserver will trigger the
+                    // brightness to previous setting
+                    if((mSettingsTask.cancel(false) == false) &&
+                        ( mSettingsTask.getStatus() == AsyncTask.Status.RUNNING)) {
+                        return;
+                    }
+                }
+                mSettingsTask = new UpdateSettingsTask();
+                mSettingsTask.execute((Object[])params);
             }
         }
 
