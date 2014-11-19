@@ -262,10 +262,10 @@ public class MediaFile {
 
         value = SystemProperties.get("ro.FSL_REAL");
         if ("1".equals(value)) {
-            addFileType("RMVB", FILE_TYPE_RMVB, "video/rmff",MtpConstants.FORMAT_REAL_RMVB);
-            addFileType("RM", FILE_TYPE_RMVB, "video/rmff",MtpConstants.FORMAT_REAL_RM);
-            addFileType("RV", FILE_TYPE_RMVB, "video/rmff",MtpConstants.FORMAT_REAL_RV);
-            addFileType("RA", FILE_TYPE_RA, "audio/rmff",MtpConstants.FORMAT_REAL_RA);
+            addFileType("RMVB", FILE_TYPE_RMVB, "video/rmff");
+            addFileType("RM", FILE_TYPE_RMVB, "video/rmff");
+            addFileType("RV", FILE_TYPE_RMVB, "video/rmff");
+            addFileType("RA", FILE_TYPE_RA, "audio/rmff");
         }
 
         addFileType("JPG", FILE_TYPE_JPEG, "image/jpeg", MtpConstants.FORMAT_EXIF_JPEG);
