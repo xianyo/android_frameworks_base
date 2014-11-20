@@ -260,7 +260,7 @@ public class MediaFile {
             addFileType("ASF", FILE_TYPE_WMV, "video/x-ms-asf");
         }
 
-        value = SystemProperties.get("ro.FSL_REAL");
+        value = SystemProperties.get("ro.FSL_REAL_PARSER");
         if ("1".equals(value)) {
             addFileType("RMVB", FILE_TYPE_RMVB, "video/rmff");
             addFileType("RM", FILE_TYPE_RMVB, "video/rmff");
