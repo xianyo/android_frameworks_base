@@ -1841,6 +1841,7 @@ public class ProgressBar extends View {
         }
         if (mRefreshProgressRunnable != null && mRefreshIsPosted) {
             removeCallbacks(mRefreshProgressRunnable);
+            mRefreshIsPosted = false;
         }
         if (mAccessibilityEventSender != null) {
             removeCallbacks(mAccessibilityEventSender);
