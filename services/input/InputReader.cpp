@@ -2939,6 +2939,9 @@ void TouchInputMapper::configureSurface(nsecs_t when, bool* outResetNeeded) {
             case 90:
                 hwrotation = DISPLAY_ORIENTATION_90;
                 break;
+            case 180:
+                hwrotation = DISPLAY_ORIENTATION_180;
+                break;
             case 270:
                 hwrotation = DISPLAY_ORIENTATION_270;
                 break;
