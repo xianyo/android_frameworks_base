@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2011 The Android Open Source Project
+ * Copyright (C) 2015 Freescale Semiconductor, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -124,6 +125,7 @@ public class UsbHostManager {
     // enabled - if true, we're connecting a device (it's arrived), else disconnecting
     private void sendDeviceNotification(int card, int device, boolean enabled,
             boolean hasPlayback, boolean hasCapture, boolean hasMIDI) {
+        Slog.i(TAG, "sendDeviceNotification, card " + card + " device " + device + " enabled " + enabled);
         // send a sticky broadcast containing current USB state
         Intent intent = new Intent(AudioManager.ACTION_USB_AUDIO_DEVICE_PLUG);
         intent.addFlags(Intent.FLAG_RECEIVER_REPLACE_PENDING);
@@ -312,7 +314,27 @@ public class UsbHostManager {
 
         // The protocol for now will be to select the last-connected (highest-numbered)
         // Alsa Card.
-        mConnectedUsbCard = cardsParser.getNumCardRecords() - 1;
+        // compare card name to select the usb audio card
+        int cardIdx;
+        int numCardRecs = cardsParser.getNumCardRecords();
+        for (cardIdx = 0; cardIdx < numCardRecs; cardIdx++) {
+            AlsaCardsParser.AlsaCardRecord cardRec = cardsParser.getCardRecordAt(cardIdx);
+            int idx = cardRec.mCardName.indexOf("USB-Audio");
+           // Slog.i(TAG, "==== name " + cardRec.mCardName + " index " + idx);
+           //found usb audio card
+           if(idx != -1)
+               break;
+        }
+
+        mConnectedUsbCard = cardIdx;
+        //no name is "USB-Audio", use the last one
+        if(mConnectedUsbCard >= numCardRecs) {
+            mConnectedUsbCard = numCardRecs - 1;
+            Slog.w(TAG, "No card name is USB-Audio, use the last one!!!");
+            cardsParser.Log();
+        }
+
+     //   mConnectedUsbCard = cardsParser.getNumCardRecords() - 1;
         mConnectedUsbDeviceNum = 0;
 
         mConnectedHasPlayback = devicesParser.hasPlaybackDevices(mConnectedUsbCard);
