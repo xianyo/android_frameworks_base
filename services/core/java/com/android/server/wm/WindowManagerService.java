@@ -7411,7 +7411,10 @@ public class WindowManagerService extends IWindowManager.Stub
     }
 
     public void displayReady() {
-        displayReady(Display.DEFAULT_DISPLAY);
+        Display[] displays = mDisplayManager.getDisplays();
+        for (Display display : displays) {
+            displayReady(display.getDisplayId());
+        }
 
         synchronized(mWindowMap) {
             final DisplayContent displayContent = getDefaultDisplayContentLocked();
