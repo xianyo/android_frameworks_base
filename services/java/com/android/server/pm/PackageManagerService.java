@@ -1684,6 +1684,13 @@ public class PackageManagerService extends IPackageManager.Stub {
                         //Log.i(TAG, "Got feature " + fname);
                         FeatureInfo fi = new FeatureInfo();
                         fi.name = fname;
+                        if (fname.equals(PackageManager.FEATURE_WIFI_DIRECT)) {
+                            String state = SystemProperties.get("persist.sys.wifidirect", "enabled");
+                            if (state.equals("disabled")) {
+                                Slog.v(TAG, "Skipping " + fname + " feature");
+                                continue;
+                            }
+                        }
                         mAvailableFeatures.put(fname, fi);
                     }
                     XmlUtils.skipCurrentTag(parser);
