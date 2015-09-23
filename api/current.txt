@@ -15256,8 +15256,8 @@ package android.media {
     field public static final int AMR_WB = 2; // 0x2
     field public static final int DEFAULT = 0; // 0x0
     field public static final int HE_AAC = 4; // 0x4
+    field public static final int MP3 = 7; // 0x7
     field public static final int VORBIS = 6; // 0x6
-    field public static final int MP3 = 7; // 0x6
   }
 
   public final class MediaRecorder.AudioSource {
@@ -38992,6 +38992,172 @@ package com.android.internal.util {
 
   public abstract interface Predicate {
     method public abstract boolean apply(T);
+  }
+
+}
+
+package com.nxp.nfc {
+
+  public abstract interface INfcAla implements android.os.IInterface {
+    method public abstract int appletLoadApplet(java.lang.String, java.lang.String) throws android.os.RemoteException;
+    method public abstract byte[] getKeyCertificate() throws android.os.RemoteException;
+    method public abstract int getListofApplets(java.lang.String, java.lang.String[]) throws android.os.RemoteException;
+  }
+
+  public abstract interface INfcDta implements android.os.IInterface {
+    method public abstract boolean snepDtaCmd(java.lang.String, java.lang.String, int, int, int, int) throws android.os.RemoteException;
+  }
+
+  public final class NfcAla {
+    ctor public NfcAla(com.nxp.nfc.INfcAla);
+    method public int appletLoadApplet(java.lang.String, java.lang.String) throws java.io.IOException;
+    method public byte[] getKeyCertificate() throws java.io.IOException;
+    method public int getListofApplets(java.lang.String, java.lang.String[]) throws java.io.IOException;
+  }
+
+  public final class NfcDta {
+    ctor public NfcDta(com.nxp.nfc.INfcDta);
+    method public boolean snepDtaCmd(java.lang.String, java.lang.String, int, int, int, int);
+  }
+
+  public final class NxpConstants {
+    ctor public NxpConstants();
+    field public static final java.lang.String ACTION_CONNECTIVITY_EVENT_DETECTED = "com.nxp.action.CONNECTIVITY_EVENT_DETECTED";
+    field public static final java.lang.String ACTION_EMVCO_MULTIPLE_CARD_DETECTED = "com.nxp.action.EMVCO_MULTIPLE_CARD_DETECTED";
+    field public static final java.lang.String ACTION_SWP_READER_ACTIVATED = "com.nxp.nfc_extras.ACTION_SWP_READER_ACTIVATED";
+    field public static final java.lang.String ACTION_SWP_READER_DEACTIVATED = "com.nxp.nfc_extras.ACTION_SWP_READER_DEACTIVATED";
+    field public static final java.lang.String ACTION_SWP_READER_REQUESTED = "com.nxp.nfc_extras.ACTION_SWP_READER_REQUESTED";
+    field public static final java.lang.String ACTION_TRANSACTION_DETECTED = "com.nxp.action.TRANSACTION_DETECTED";
+    field public static final java.lang.String EXTRA_AID = "com.nxp.extra.AID";
+    field public static final java.lang.String EXTRA_DATA = "com.nxp.extra.DATA";
+    field public static final java.lang.String EXTRA_SOURCE = "com.nxp.extra.SOURCE";
+    field public static final java.lang.String EXTRA_SWP_READER_TECH = "com.nxp.nfc_extras.extra.EXTRA_SWP_READER_TECH";
+    field public static final java.lang.String HOST_ID = "com.nxp.host.ID";
+    field public static final java.lang.String SMART_MX_ID = "com.nxp.smart_mx.ID";
+    field public static final java.lang.String UICC_ID = "com.nxp.uicc.ID";
+  }
+
+  public final class NxpNfcAdapter {
+    method public void DefaultRouteSet(java.lang.String, boolean, boolean, boolean) throws java.io.IOException;
+    method public void MifareCLTRouteSet(java.lang.String, boolean, boolean, boolean) throws java.io.IOException;
+    method public void MifareDesfireRouteSet(java.lang.String, boolean, boolean, boolean) throws java.io.IOException;
+    method public com.nxp.nfc.NfcAla createNfcAla();
+    method public com.nxp.nfc.NfcDta createNfcDta();
+    method public void deSelectedSecureElement(java.lang.String) throws java.io.IOException;
+    method public java.lang.String[] getAvailableSecureElementList(java.lang.String) throws java.io.IOException;
+    method public java.lang.String getDefaultSelectedSecureElement(java.lang.String) throws java.io.IOException;
+    method public static synchronized com.nxp.nfc.NxpNfcAdapter getNxpNfcAdapter(android.nfc.NfcAdapter);
+    method public void selectDefaultSecureElement(java.lang.String, java.lang.String) throws java.io.IOException;
+  }
+
+}
+
+package com.vzw.nfc {
+
+  public final class AidFilter {
+    ctor public AidFilter();
+    method public boolean disableFilterCondition(byte);
+    method public boolean enableFilterCondition(byte);
+    method public boolean setFilterList(byte[]);
+    field public final int DEFAULT_ROUTE_LOCATION;
+  }
+
+  public final class RouteEntry implements android.os.Parcelable {
+    ctor public RouteEntry();
+    ctor public RouteEntry(byte[], int, int, boolean);
+    method public int describeContents();
+    method public byte[] getAid();
+    method public int getLocation();
+    method public int getPowerState();
+    method public boolean isAllowed();
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator CREATOR;
+  }
+
+}
+
+package com.vzw.nfc.dos {
+
+  public class AidMaskDo extends com.vzw.nfc.dos.VzwTlv {
+    ctor public AidMaskDo(byte[], int, int);
+    ctor public AidMaskDo(byte[]);
+    method public byte[] getAidMask();
+    field public static final int _TAG = 195; // 0xc3
+  }
+
+  public class AidRangeDo extends com.vzw.nfc.dos.VzwTlv {
+    ctor public AidRangeDo(byte[], int, int);
+    ctor public AidRangeDo(byte[]);
+    method public byte[] getAidRange();
+    field public static final int _TAG = 194; // 0xc2
+  }
+
+  public class ClfFilterDo extends com.vzw.nfc.dos.VzwTlv {
+    ctor public ClfFilterDo(byte[], int, int);
+    ctor public ClfFilterDo(com.vzw.nfc.dos.FilterEntryDo);
+    method public com.vzw.nfc.dos.FilterEntryDo getFilterEntryDo();
+    field public static final int _TAG = 254; // 0xfe
+  }
+
+  public class ClfFilterDoList extends com.vzw.nfc.dos.VzwTlv {
+    ctor public ClfFilterDoList(byte[], int, int);
+    method public java.util.ArrayList<com.vzw.nfc.dos.ClfFilterDo> getClfFilterDos();
+  }
+
+  public class DoParserException extends java.lang.Exception {
+    ctor public DoParserException();
+    ctor public DoParserException(java.lang.String, java.lang.Throwable);
+    ctor public DoParserException(java.lang.String);
+    ctor public DoParserException(java.lang.Throwable);
+  }
+
+  public class FilterConditionTagDo extends com.vzw.nfc.dos.VzwTlv {
+    ctor public FilterConditionTagDo(byte[], int, int);
+    ctor public FilterConditionTagDo(byte);
+    method public byte getFilterConditionTag();
+    field public static final byte SCREEN_OFF_TAG = -15; // 0xfffffff1
+    field public static final int _TAG = 210; // 0xd2
+  }
+
+  public class FilterEntryDo extends com.vzw.nfc.dos.VzwTlv {
+    ctor public FilterEntryDo(byte[], int, int);
+    ctor public FilterEntryDo(com.vzw.nfc.dos.AidRangeDo, com.vzw.nfc.dos.AidMaskDo, com.vzw.nfc.dos.RoutingModeDo, com.vzw.nfc.dos.FilterConditionTagDo);
+    method public com.vzw.nfc.dos.AidMaskDo getAidMaskDo();
+    method public com.vzw.nfc.dos.AidRangeDo getAidRangeDo();
+    method public com.vzw.nfc.dos.FilterConditionTagDo getFilterConditionTagDo();
+    method public com.vzw.nfc.dos.RoutingModeDo getRoutingModeDo();
+    method public com.vzw.nfc.dos.VzwPermissionDo getVzwArDo();
+    field public static final int _TAG = 161; // 0xa1
+  }
+
+  public class RoutingModeDo extends com.vzw.nfc.dos.VzwTlv {
+    ctor public RoutingModeDo(byte[], int, int);
+    ctor public RoutingModeDo(boolean, boolean, boolean);
+    ctor public RoutingModeDo(byte);
+    method public byte getRoutingInfo();
+    method public boolean isFullPowerModeAllowed();
+    method public boolean isLowPowerModeAllowed();
+    method public boolean isNoPowerModeAllowed();
+    field public static final int _TAG = 178; // 0xb2
+  }
+
+  public class VzwPermissionDo extends com.vzw.nfc.dos.VzwTlv {
+    ctor public VzwPermissionDo(byte[], int, int);
+    ctor public VzwPermissionDo(boolean);
+    method public boolean isVzwAllowed();
+    field public static final int _TAG = 227; // 0xe3
+  }
+
+  public class VzwTlv {
+    ctor public VzwTlv(byte[], int, int, int);
+    method public static void encodeLength(int, java.io.ByteArrayOutputStream);
+    method protected byte[] getRawData();
+    method public int getTag();
+    method public byte[] getValue();
+    method public int getValueIndex();
+    method public int getValueLength();
+    method public static com.vzw.nfc.dos.VzwTlv parse(byte[], int) throws com.vzw.nfc.dos.DoParserException;
+    method public void translate() throws com.vzw.nfc.dos.DoParserException;
   }
 
 }
