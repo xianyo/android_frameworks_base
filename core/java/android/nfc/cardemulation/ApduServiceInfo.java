@@ -13,6 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+ /******************************************************************************
+ *
+ *  The original Work has been changed by NXP Semiconductors.
+ *
+ *  Copyright (C) 2014 NXP Semiconductors
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ ******************************************************************************/
 
 package android.nfc.cardemulation;
 
@@ -47,6 +66,24 @@ import java.util.Map;
  */
 public final class ApduServiceInfo implements Parcelable {
     static final String TAG = "ApduServiceInfo";
+
+    //name of secure element
+    static final String SECURE_ELEMENT_ESE = "eSE";
+    static final String SECURE_ELEMENT_UICC = "UICC";
+
+    //pwer state value
+    static final int POWER_STATE_SWITCH_ON = 1;
+    static final int POWER_STATE_SWITCH_OFF = 2;
+    static final int POWER_STATE_BATTERY_OFF = 4;
+    static final int SECURE_ELEMENT_ROUTE_UICC = 0x02;
+    static final int SECURE_ELEMENT_ROUTE_ESE = 0x01;
+
+    /**
+     * The name of the meta-data element that contains
+     * nxp extended SE information about off host service.
+     */
+    static final String NXP_NFC_EXT_META_DATA =
+            "com.nxp.nfc.extensions";
 
     /**
      * The service that implements this
@@ -87,12 +124,18 @@ public final class ApduServiceInfo implements Parcelable {
      * The uid of the package the service belongs to
      */
     final int mUid;
+
+    /**
+      * nxp se extension
+      */
+    final ESeInfo mSeExtension;
+
     /**
      * @hide
      */
-    public ApduServiceInfo(ResolveInfo info, boolean onHost, String description,
+  public ApduServiceInfo(ResolveInfo info, boolean onHost, String description,
             ArrayList<AidGroup> staticAidGroups, ArrayList<AidGroup> dynamicAidGroups,
-            boolean requiresUnlock, int bannerResource, int uid) {
+            boolean requiresUnlock, int bannerResource, int uid, ESeInfo seExtension) {
         this.mService = info;
         this.mDescription = description;
         this.mStaticAidGroups = new HashMap<String, AidGroup>();
@@ -107,12 +150,14 @@ public final class ApduServiceInfo implements Parcelable {
         }
         this.mBannerResourceId = bannerResource;
         this.mUid = uid;
+        this.mSeExtension = seExtension;
     }
 
     public ApduServiceInfo(PackageManager pm, ResolveInfo info, boolean onHost) throws
             XmlPullParserException, IOException {
         ServiceInfo si = info.serviceInfo;
         XmlResourceParser parser = null;
+        XmlResourceParser nxpParser = null;
         try {
             if (onHost) {
                 parser = si.loadXmlMetaData(pm, HostApduService.SERVICE_META_DATA);
@@ -124,6 +169,13 @@ public final class ApduServiceInfo implements Parcelable {
                 parser = si.loadXmlMetaData(pm, OffHostApduService.SERVICE_META_DATA);
                 if (parser == null) {
                     throw new XmlPullParserException("No " + OffHostApduService.SERVICE_META_DATA +
+                            " meta-data");
+                }
+
+                /* load nxp extension xml */
+                nxpParser = si.loadXmlMetaData(pm, NXP_NFC_EXT_META_DATA);
+                if (parser == null) {
+                    Log.d(TAG,"No " + NXP_NFC_EXT_META_DATA +
                             " meta-data");
                 }
             }
@@ -247,6 +299,60 @@ public final class ApduServiceInfo implements Parcelable {
         }
         // Set uid
         mUid = si.applicationInfo.uid;
+        // Parsed values se name and power state
+        if (nxpParser != null)
+        {
+            try{
+                int eventType = nxpParser.getEventType();
+                final int depth = nxpParser.getDepth();
+                String seName = null;
+                int powerState  = 0;
+
+                while (eventType != XmlPullParser.START_TAG && eventType != XmlPullParser.END_DOCUMENT) {
+                    eventType = nxpParser.next();
+                }
+                String tagName = nxpParser.getName();
+                if (!"extensions".equals(tagName)) {
+                    throw new XmlPullParserException(
+                            "Meta-data does not start with <extensions> tag "+tagName);
+                }
+                while (((eventType = nxpParser.next()) != XmlPullParser.END_TAG || nxpParser.getDepth() > depth)
+                        && eventType != XmlPullParser.END_DOCUMENT) {
+                    tagName = nxpParser.getName();
+
+                    if ("nxp-se-ext-group".equals(tagName) ) {
+                        //do nothing
+                    }else if (eventType == XmlPullParser.START_TAG && "se-id".equals(tagName) ) {
+                        // Get name of eSE
+                        seName = nxpParser.getAttributeValue(null, "name");
+                        if (seName == null  || (!seName.equalsIgnoreCase(SECURE_ELEMENT_ESE) && !seName.equalsIgnoreCase(SECURE_ELEMENT_UICC)) ) {
+                            throw new XmlPullParserException("Unsupported se name: " + seName);
+                        }
+                    } else if (eventType == XmlPullParser.START_TAG && "se-power-state".equals(tagName) ) {
+                        // Get power state
+                        String powerName = nxpParser.getAttributeValue(null, "name");
+                        boolean powerValue = (nxpParser.getAttributeValue(null, "value").equals("true")) ? true : false;
+                        if (powerName.equalsIgnoreCase("SwitchOn") && powerValue) {
+                            powerState |= POWER_STATE_SWITCH_ON;
+                        }else if (powerName.equalsIgnoreCase("SwitchOff") && powerValue) {
+                            powerState |= POWER_STATE_SWITCH_OFF;
+                        }else if (powerName.equalsIgnoreCase("BatteryOff") && powerValue) {
+                            powerState |= POWER_STATE_BATTERY_OFF;
+                        }
+                    }
+                }
+                if(seName != null) {
+                    mSeExtension = new ESeInfo(  ( seName.equals(SECURE_ELEMENT_UICC) ? SECURE_ELEMENT_ROUTE_UICC : (seName.equals(SECURE_ELEMENT_ESE)? SECURE_ELEMENT_ROUTE_ESE: -1) ) , powerState != 0?powerState : 0);
+                    Log.d(TAG, mSeExtension.toString());
+                } else {
+                    mSeExtension = new ESeInfo(-1, 0);
+                }
+            } finally {
+                nxpParser.close();
+            }
+        }else {
+            mSeExtension = new ESeInfo(-1, 0);
+        }
     }
 
     public ComponentName getComponent() {
@@ -316,6 +422,10 @@ public final class ApduServiceInfo implements Parcelable {
             }
         }
         return null;
+    }
+
+    public ESeInfo getSEInfo() {
+        return mSeExtension;
     }
 
     public boolean hasCategory(String category) {
@@ -417,6 +527,7 @@ public final class ApduServiceInfo implements Parcelable {
         dest.writeInt(mRequiresDeviceUnlock ? 1 : 0);
         dest.writeInt(mBannerResourceId);
         dest.writeInt(mUid);
+        mSeExtension.writeToParcel(dest, flags);
     };
 
     public static final Parcelable.Creator<ApduServiceInfo> CREATOR =
@@ -439,8 +550,10 @@ public final class ApduServiceInfo implements Parcelable {
             boolean requiresUnlock = source.readInt() != 0;
             int bannerResource = source.readInt();
             int uid = source.readInt();
+            ESeInfo seExtension = ESeInfo.CREATOR.createFromParcel(source);
+
             return new ApduServiceInfo(info, onHost, description, staticAidGroups,
-                    dynamicAidGroups, requiresUnlock, bannerResource, uid);
+                    dynamicAidGroups, requiresUnlock, bannerResource, uid, seExtension);
         }
 
         @Override
@@ -466,5 +579,59 @@ public final class ApduServiceInfo implements Parcelable {
                 pw.println("            AID: " + aid);
             }
         }
+    }
+    public static class ESeInfo implements Parcelable {
+        final int seId;
+        final int powerState;
+
+        public ESeInfo(int seId, int powerState) {
+            this.seId = seId;
+            this.powerState = powerState;
+        }
+
+        public int getSeId() {
+            return seId;
+        }
+
+        public int getPowerState() {
+            return powerState;
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder out = new StringBuilder("seId: " + seId +
+                      ",Power state: [switchOn: " +
+                      ((powerState & POWER_STATE_SWITCH_ON) !=0) +
+                      ",switchOff: " + ((powerState & POWER_STATE_SWITCH_OFF) !=0) +
+                      ",batteryOff: " + ((powerState & POWER_STATE_BATTERY_OFF) !=0) + "]");
+            return out.toString();
+        }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeInt(seId);
+            dest.writeInt(powerState);
+        }
+
+        public static final Parcelable.Creator<ApduServiceInfo.ESeInfo> CREATOR =
+                new Parcelable.Creator<ApduServiceInfo.ESeInfo>() {
+
+            @Override
+            public ESeInfo createFromParcel(Parcel source) {
+                int seId = source.readInt();
+                int powerState = source.readInt();
+                return new ESeInfo(seId, powerState);
+            }
+
+            @Override
+            public ESeInfo[] newArray(int size) {
+                return new ESeInfo[size];
+            }
+        };
     }
 }
